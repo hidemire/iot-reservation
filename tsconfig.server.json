@@ -3,10 +3,15 @@
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "dist",
-    "target": "ES2019",
-    "lib": ["ES2019", "DOM"],
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM"],
     "isolatedModules": false,
-    "noEmit": false
+    "noEmit": false,
+    "baseUrl": ".",
+    "incremental": true,
+    "paths": {
+      "~/*": ["src/*"]
+    }
   },
   "include": [
     "next-env.d.ts",
