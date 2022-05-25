@@ -1,4 +1,8 @@
 import '../styles/global.css';
+import { ReactElement, ReactNode } from 'react';
+import { NextPage } from 'next';
+import { AppProps } from 'next/app';
+import superjson from 'superjson';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { loggerLink } from '@trpc/client/links/loggerLink';
 import { wsLink, createWSClient } from '@trpc/client/links/wsLink';
@@ -6,20 +10,31 @@ import { withTRPC } from '@trpc/next';
 import { getSession, SessionProvider } from 'next-auth/react';
 import getConfig from 'next/config';
 import { AppType } from 'next/dist/shared/lib/utils';
-import type { AppRouter } from 'server/routers/_app';
-import superjson from 'superjson';
+import { DefaultLayout } from '~/components/DefaultLayout';
+import type { AppRouter } from '~/server/routers/_app';
 
-const { publicRuntimeConfig } = getConfig();
+export type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+const { publicRuntimeConfig, serverRuntimeConfig } = getConfig();
 
 const { APP_URL, WS_URL } = publicRuntimeConfig;
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType = (({ Component, pageProps }: AppPropsWithLayout) => {
+  const getLayout =
+    Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>);
+
   return (
     <SessionProvider session={pageProps.session}>
-      <Component {...pageProps} />
+      <DefaultLayout>{getLayout(<Component {...pageProps} />)}</DefaultLayout>
     </SessionProvider>
   );
-};
+}) as AppType;
 
 MyApp.getInitialProps = async ({ ctx }) => {
   return {
