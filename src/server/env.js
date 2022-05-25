@@ -10,6 +10,8 @@ const { z } = require('zod');
 const envSchema = z.object({
   APP_URL: z.string().url(),
   DATABASE_URL: z.string().url(),
+  GOOGLE_ID: z.string(),
+  GOOGLE_SECRET: z.string(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
   WS_URL: z.string().url(),
 });

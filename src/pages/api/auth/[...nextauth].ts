@@ -1,53 +1,27 @@
 import NextAuth from 'next-auth';
 import { AppProviders } from 'next-auth/providers';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
+import { serverRuntimeConfig } from '~/utils/publicRuntimeConfig';
 
-let useMockProvider = process.env.NODE_ENV === 'test';
-const { GITHUB_CLIENT_ID, GITHUB_SECRET, NODE_ENV, APP_ENV } = process.env;
-if (
-  (NODE_ENV !== 'production' || APP_ENV === 'test') &&
-  (!GITHUB_CLIENT_ID || !GITHUB_SECRET)
-) {
-  console.log('⚠️ Using mocked GitHub auth correct credentails were not added');
-  useMockProvider = true;
-}
 const providers: AppProviders = [];
-if (useMockProvider) {
-  providers.push(
-    CredentialsProvider({
-      id: 'github',
-      name: 'Mocked GitHub',
-      async authorize(credentials) {
-        const user = {
-          id: credentials?.name,
-          name: credentials?.name,
-          email: credentials?.name,
-        };
-        return user;
-      },
-      credentials: {
-        name: { type: 'test' },
-      },
-    }),
-  );
-} else {
-  providers.push(
-    GithubProvider({
-      clientId: GITHUB_CLIENT_ID,
-      clientSecret: GITHUB_SECRET,
-      profile(profile) {
-        return {
-          id: profile.id,
-          name: profile.login,
-          email: profile.email,
-          image: profile.avatar_url,
-        } as any;
-      },
-    }),
-  );
-}
+
+providers.push(
+  GoogleProvider({
+    clientId: serverRuntimeConfig.GOOGLE_ID,
+    clientSecret: serverRuntimeConfig.GOOGLE_SECRET,
+  }),
+);
+
 export default NextAuth({
   // Configure one or more authentication providers
   providers,
+  secret: 'process.env.JWT_SECRET',
+  callbacks: {
+    async signIn({ account, profile }): Promise<string | boolean> {
+      if (account.provider === 'google') {
+        return profile?.email?.endsWith('@lpnu.ua') || false;
+      }
+      return true;
+    },
+  },
 });

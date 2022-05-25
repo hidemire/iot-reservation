@@ -1,6 +1,15 @@
+import { useSession, signIn, signOut } from 'next-auth/react';
+
 import { NextPageWithLayout } from '~/pages/_app';
 
 const IndexPage: NextPageWithLayout = () => {
+  const { data: session } = useSession();
+
+  if (!session) {
+    signIn();
+    return <></>;
+  }
+
   return (
     <>
       <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-white dark:bg-gray-700 text-black dark:text-white">
@@ -9,9 +18,12 @@ const IndexPage: NextPageWithLayout = () => {
           <div className="flex items-center justify-start md:justify-center pl-3 w-14 md:w-64 h-14 bg-blue-800 dark:bg-gray-800 border-none">
             <img
               className="w-7 h-7 md:w-10 md:h-10 mr-2 rounded-md overflow-hidden"
-              src="https://therminic2018.eu/wp-content/uploads/2018/07/dummy-avatar.jpg"
+              src={
+                session?.user?.image ||
+                'https://therminic2018.eu/wp-content/uploads/2018/07/dummy-avatar.jpg'
+              }
             />
-            <span className="hidden md:block">Кушнірук Дмитро</span>
+            <span className="hidden md:block">{session?.user?.name}</span>
           </div>
           <div className="flex justify-between items-center h-14 bg-blue-800 dark:bg-gray-800 header-right">
             <div className="bg-white rounded flex items-center w-full max-w-xl mr-4 p-2 shadow-sm border border-gray-200">
@@ -109,6 +121,7 @@ const IndexPage: NextPageWithLayout = () => {
                 <a
                   href="#"
                   className="flex items-center mr-4 hover:text-blue-100"
+                  onClick={() => signOut()}
                 >
                   <span className="inline-flex mr-1">
                     <svg

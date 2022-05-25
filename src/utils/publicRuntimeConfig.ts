@@ -10,8 +10,12 @@ import getConfig from 'next/config';
  * Inferred type from `publicRuntime` in `next.config.js`
  */
 type PublicRuntimeConfig = typeof config.publicRuntimeConfig;
+type ServerRuntimeConfig = typeof config.serverRuntimeConfig;
 
 const nextConfig = getConfig();
 
 export const publicRuntimeConfig =
   nextConfig.publicRuntimeConfig as PublicRuntimeConfig;
+
+export const serverRuntimeConfig =
+  nextConfig.serverRuntimeConfig as ServerRuntimeConfig;

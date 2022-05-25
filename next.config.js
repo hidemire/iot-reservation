@@ -25,6 +25,8 @@ module.exports = getConfig({
    */
   serverRuntimeConfig: {
     DATABASE_URL: env.DATABASE_URL,
+    GOOGLE_ID: env.GOOGLE_ID,
+    GOOGLE_SECRET: env.GOOGLE_SECRET,
   },
 
   publicRuntimeConfig: {
