@@ -1,6 +1,6 @@
 import { createReactQueryHooks } from '@trpc/react';
 import type { inferProcedureOutput } from '@trpc/server';
-import { AppRouter } from 'server/routers/_app';
+import { AppRouter } from '~/server/routers/_app';
 
 // import superjson from 'superjson';
 // ℹ️ Type-only import:
