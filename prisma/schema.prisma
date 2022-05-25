@@ -28,3 +28,20 @@ model Post {
   createdAt DateTime @unique @default(now())
   updatedAt DateTime @unique @default(now())
 }
+
+model Station {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  description String
+  ip          String
+  status      StationStatus @default(INACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum StationStatus {
+  ACTIVE
+  INACTIVE
+  USED
+}
