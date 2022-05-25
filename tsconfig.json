@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -13,6 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "noUncheckedIndexedAccess": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -23,13 +20,18 @@
       "jest-playwright-preset",
       "expect-playwright"
     ],
-    "baseUrl": "./src",
-    "incremental": true
+    "baseUrl": ".",
+    "incremental": true,
+    "paths": {
+      "~/*": ["src/*"]
+    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "./*.js",
+    "./src/**/*.js",
   ],
   "exclude": [
     "node_modules"
