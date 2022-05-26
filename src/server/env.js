@@ -1,28 +1,31 @@
 // @ts-check
-/**
- * This file is included in `/next.config.js` which ensures the app isn't built with invalid env vars.
- * It has to be a `.js`-file to be imported there.
- */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { z } = require('zod');
+const envalid = require('envalid');
 
-/*eslint sort-keys: "error"*/
-const envSchema = z.object({
-  APP_URL: z.string().url(),
-  DATABASE_URL: z.string().url(),
-  GOOGLE_ID: z.string(),
-  GOOGLE_SECRET: z.string(),
-  NODE_ENV: z.enum(['development', 'test', 'production']),
-  WS_URL: z.string().url(),
+const env = envalid.cleanEnv(process.env, {
+  APP_URL: envalid.url(),
+  DATABASE_URL: envalid.url(),
+  EMAIL_DOMAINS_WHITELIST: envalid.json(),
+  GOOGLE_ID: envalid.str(),
+  GOOGLE_SECRET: envalid.str(),
+  JWT_SECRET: envalid.str(),
+  NODE_ENV: envalid.str({ choices: ['development', 'test', 'production'] }),
+  WS_URL: envalid.url(),
 });
 
-const env = envSchema.safeParse(process.env);
+const envSchema = z.object({
+  EMAIL_DOMAINS_WHITELIST: z.string().array().nonempty(),
+});
 
-if (!env.success) {
+const parseResult = envSchema.safeParse(env);
+
+if (!parseResult.success) {
   console.error(
     '❌ Invalid environment variables:',
-    JSON.stringify(env.error.format(), null, 4),
+    JSON.stringify(parseResult.error.format(), null, 4),
   );
   process.exit(1);
 }
-module.exports.env = env.data;
+
+module.exports.env = { ...env, ...parseResult.data };

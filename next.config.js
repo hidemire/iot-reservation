@@ -25,8 +25,10 @@ module.exports = getConfig({
    */
   serverRuntimeConfig: {
     DATABASE_URL: env.DATABASE_URL,
+    EMAIL_DOMAINS_WHITELIST: env.EMAIL_DOMAINS_WHITELIST,
     GOOGLE_ID: env.GOOGLE_ID,
     GOOGLE_SECRET: env.GOOGLE_SECRET,
+    JWT_SECRET: env.JWT_SECRET,
   },
 
   publicRuntimeConfig: {
