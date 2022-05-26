@@ -6,7 +6,7 @@ const IndexPage: NextPageWithLayout = () => {
   const { data: session } = useSession();
 
   if (!session) {
-    signIn();
+    signIn('google');
     return <></>;
   }
 
