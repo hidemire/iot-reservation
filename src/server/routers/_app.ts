@@ -2,8 +2,7 @@
  * This file contains the root router of your tRPC-backend
  */
 import { createRouter } from '../createRouter';
-import { postRouter } from './post';
-import { Subscription } from '@trpc/server';
+import { Subscription, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { clearInterval } from 'timers';
 
@@ -24,12 +23,17 @@ export const appRouter = createRouter()
    * @link https://trpc.io/docs/error-formatting
    */
   // .formatError(({ shape, error }) => { })
+  .middleware(async ({ ctx, next }) => {
+    if (!ctx.session) {
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    return next();
+  })
   .query('healthz', {
     resolve() {
       return 'yay!';
     },
   })
-  .merge('post.', postRouter)
   .subscription('randomNumber', {
     resolve() {
       return new Subscription<number>((emit) => {
