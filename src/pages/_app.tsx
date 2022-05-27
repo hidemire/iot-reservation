@@ -8,6 +8,7 @@ import { loggerLink } from '@trpc/client/links/loggerLink';
 import { wsLink, createWSClient } from '@trpc/client/links/wsLink';
 import { withTRPC } from '@trpc/next';
 import { getSession, SessionProvider } from 'next-auth/react';
+import { ThemeProvider } from 'next-themes';
 import { AppType } from 'next/dist/shared/lib/utils';
 import { DefaultLayout } from '~/components/DefaultLayout';
 import type { AppRouter } from '~/server/routers/_app';
@@ -29,7 +30,9 @@ const MyApp: AppType = (({ Component, pageProps }: AppPropsWithLayout) => {
 
   return (
     <SessionProvider session={pageProps.session}>
-      <DefaultLayout>{getLayout(<Component {...pageProps} />)}</DefaultLayout>
+      <ThemeProvider enableSystem attribute="class">
+        <DefaultLayout>{getLayout(<Component {...pageProps} />)}</DefaultLayout>
+      </ThemeProvider>
     </SessionProvider>
   );
 }) as AppType;
