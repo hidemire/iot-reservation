@@ -1,7 +1,9 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
+import NiceModal from '@ebay/nice-modal-react';
 
 import { NextPageWithLayout } from '~/pages/_app';
 import { ThemeChanger } from '~/components/ThemeChanger';
+import { StationBookModal } from '~/components/StationBookModal';
 
 const IndexPage: NextPageWithLayout = () => {
   const { data: session } = useSession();
@@ -10,6 +12,10 @@ const IndexPage: NextPageWithLayout = () => {
     signIn('google');
     return <></>;
   }
+
+  const showBookModal = () => {
+    NiceModal.show(StationBookModal);
+  };
 
   return (
     <>
@@ -389,7 +395,10 @@ const IndexPage: NextPageWithLayout = () => {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
+                        <button
+                          onClick={() => showBookModal()}
+                          className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple"
+                        >
                           Book
                         </button>
                       </td>
