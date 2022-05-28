@@ -1,10 +1,29 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import NiceModal from '@ebay/nice-modal-react';
+import type { StationStatus } from '@prisma/client';
 
+import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
 import { ThemeChanger } from '~/components/ThemeChanger';
 import { StationBookModal } from '~/components/StationBookModal';
 import { StationViewModal } from '~/components/StationViewModal';
+
+const stationStatusMapper: {
+  [key in StationStatus]: { text: string; color: string };
+} = {
+  ACTIVE: {
+    text: 'available',
+    color: 'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100',
+  },
+  INACTIVE: {
+    text: 'unavailable',
+    color: 'text-red-700 bg-red-100 dark:text-red-100 dark:bg-red-700',
+  },
+  USED: {
+    text: 'used',
+    color: 'text-yellow-700 bg-yellow-100',
+  },
+};
 
 const IndexPage: NextPageWithLayout = () => {
   const { data: session } = useSession();
@@ -13,6 +32,12 @@ const IndexPage: NextPageWithLayout = () => {
     signIn('google');
     return <></>;
   }
+
+  const { data: stations } = trpc.useQuery(['station.get-all'], {
+    // refetchInterval: 60 * 1000,
+    refetchInterval: 1000,
+    refetchIntervalInBackground: true,
+  });
 
   const showBookModal = () => {
     NiceModal.show(StationBookModal);
@@ -371,160 +396,63 @@ const IndexPage: NextPageWithLayout = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-                    <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center text-sm">
-                          <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                            <img
-                              className="object-cover w-full h-full rounded-full"
-                              src="https://c8.alamy.com/comp/2BKNYTB/vector-illustration-of-monitor-computer-icon-or-logo-with-black-color-and-line-design-style-2BKNYTB.jpg"
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="absolute inset-0 rounded-full shadow-inner"
-                              aria-hidden="true"
-                            ></div>
+                    {stations?.map((station) => (
+                      <tr
+                        key={station.id}
+                        className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center text-sm">
+                            <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                              <img
+                                className="object-cover w-full h-full rounded-full"
+                                src="https://c8.alamy.com/comp/2BKNYTB/vector-illustration-of-monitor-computer-icon-or-logo-with-black-color-and-line-design-style-2BKNYTB.jpg"
+                                alt=""
+                                loading="lazy"
+                              />
+                              <div
+                                className="absolute inset-0 rounded-full shadow-inner"
+                                aria-hidden="true"
+                              ></div>
+                            </div>
+                            <div>
+                              <p className="font-semibold">{station.name}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">
+                                {station.description}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold">Station №1</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              Distance sensors
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">0</td>
-                      <td className="px-4 py-3 text-xs">
-                        <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                          {' '}
-                          available{' '}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <button
-                          onClick={() => showBookModal()}
-                          className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple"
-                        >
-                          Book
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center text-sm">
-                          <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                            <img
-                              className="object-cover w-full h-full rounded-full"
-                              src="https://c8.alamy.com/comp/2BKNYTB/vector-illustration-of-monitor-computer-icon-or-logo-with-black-color-and-line-design-style-2BKNYTB.jpg"
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="absolute inset-0 rounded-full shadow-inner"
-                              aria-hidden="true"
-                            ></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Station №2</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              Display
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">4</td>
-                      <td className="px-4 py-3 text-xs">
-                        <span className="px-2 py-1 font-semibold leading-tight text-yellow-700 bg-yellow-100 rounded-full">
-                          {' '}
-                          used{' '}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Book
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center text-sm">
-                          <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                            <img
-                              className="object-cover w-full h-full rounded-full"
-                              src="https://c8.alamy.com/comp/2BKNYTB/vector-illustration-of-monitor-computer-icon-or-logo-with-black-color-and-line-design-style-2BKNYTB.jpg"
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="absolute inset-0 rounded-full shadow-inner"
-                              aria-hidden="true"
-                            ></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Station №3</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              FLASH
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">0</td>
-                      <td className="px-4 py-3 text-xs">
-                        <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
-                          {' '}
-                          available{' '}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Book
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-400">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center text-sm">
-                          <div className="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                            <img
-                              className="object-cover w-full h-full rounded-full"
-                              src="https://c8.alamy.com/comp/2BKNYTB/vector-illustration-of-monitor-computer-icon-or-logo-with-black-color-and-line-design-style-2BKNYTB.jpg"
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="absolute inset-0 rounded-full shadow-inner"
-                              aria-hidden="true"
-                            ></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Station №4</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              CAN
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">-</td>
-                      <td className="px-4 py-3 text-xs">
-                        <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-700">
-                          {' '}
-                          unavailable{' '}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-gray-600 dark:bg-gray-100 border border-r-0 border-gray-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Book
-                        </button>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="px-4 py-3 text-sm">{station.queue}</td>
+                        <td className="px-4 py-3 text-xs">
+                          <span
+                            className={`px-2 py-1 font-semibold leading-tight text-green-700 rounded-full ${
+                              stationStatusMapper[station.status].color
+                            }`}
+                          >
+                            {' '}
+                            {stationStatusMapper[station.status].text}{' '}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <button
+                            onClick={() => showBookModal()}
+                            disabled={station.status === 'INACTIVE'}
+                            className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 dark:disabled:bg-gray-400 disabled:bg-gray-300 border border-r-0 border-blue-600 disabled:border-gray-300 dark:disabled:border-gray-400 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple"
+                          >
+                            Book
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
               <div className="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
                 <span className="flex items-center col-span-3">
                   {' '}
-                  Stations 1-4 of 4{' '}
+                  Stations 1-{stations?.length || 'N/A'} of{' '}
+                  {stations?.length || 'N/A'}{' '}
                 </span>
                 <span className="col-span-2"></span>
                 {/* Pagination */}
