@@ -38,6 +38,7 @@
     "singleQuote": true
   },
   "dependencies": {
+    "@ebay/nice-modal-react": "^1.2.5",
     "@prisma/client": "^3.0.1",
     "@trpc/client": "^9.23.6",
     "@trpc/next": "^9.23.6",

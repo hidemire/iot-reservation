@@ -10,6 +10,7 @@ import { wsLink, createWSClient } from '@trpc/client/links/wsLink';
 import { withTRPC } from '@trpc/next';
 import { getSession, SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from 'next-themes';
+import { Provider as NiceModalProvider } from '@ebay/nice-modal-react';
 import { AppType } from 'next/dist/shared/lib/utils';
 import { DefaultLayout } from '~/components/DefaultLayout';
 import type { AppRouter } from '~/server/routers/_app';
@@ -32,7 +33,11 @@ const MyApp: AppType = (({ Component, pageProps }: AppPropsWithLayout) => {
   return (
     <SessionProvider session={pageProps.session}>
       <ThemeProvider enableSystem attribute="class">
-        <DefaultLayout>{getLayout(<Component {...pageProps} />)}</DefaultLayout>
+        <NiceModalProvider>
+          <DefaultLayout>
+            {getLayout(<Component {...pageProps} />)}
+          </DefaultLayout>
+        </NiceModalProvider>
       </ThemeProvider>
     </SessionProvider>
   );
