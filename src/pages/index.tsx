@@ -102,7 +102,7 @@ const IndexPage: NextPageWithLayout = () => {
                       ></path>
                     </svg>
                   </span>
-                  Вийти
+                  Logout
                 </a>
               </li>
             </ul>
@@ -116,7 +116,7 @@ const IndexPage: NextPageWithLayout = () => {
               <li className="px-5 hidden md:block">
                 <div className="flex flex-row items-center h-8">
                   <div className="text-sm font-light tracking-wide text-gray-400 uppercase">
-                    Основне
+                    Main
                   </div>
                 </div>
               </li>
@@ -142,14 +142,14 @@ const IndexPage: NextPageWithLayout = () => {
                     </svg>
                   </span>
                   <span className="ml-2 text-sm tracking-wide truncate">
-                    Станції
+                    Dashboard
                   </span>
                 </a>
               </li>
               <li className="px-5 hidden md:block">
                 <div className="flex flex-row items-center mt-5 h-8">
                   <div className="text-sm font-light tracking-wide text-gray-400 uppercase">
-                    Налаштування
+                    Settings
                   </div>
                 </div>
               </li>
@@ -175,39 +175,7 @@ const IndexPage: NextPageWithLayout = () => {
                     </svg>
                   </span>
                   <span className="ml-2 text-sm tracking-wide truncate">
-                    Профіль
-                  </span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-800 dark:hover:bg-gray-600 text-white-600 hover:text-white-800 border-l-4 border-transparent hover:border-blue-500 dark:hover:border-gray-800 pr-6"
-                >
-                  <span className="inline-flex justify-center items-center ml-4">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                      ></path>
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      ></path>
-                    </svg>
-                  </span>
-                  <span className="ml-2 text-sm tracking-wide truncate">
-                    Налаштування
+                    Profile
                   </span>
                 </a>
               </li>
@@ -219,19 +187,65 @@ const IndexPage: NextPageWithLayout = () => {
         </div>
 
         <div className="h-full ml-14 mt-14 mb-10 md:ml-64">
-          <div className="p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 p-4 gap-4">
+            <div className="relative flex flex-col min-w-0 mb-4 lg:mb-0 break-words bg-gray-50 dark:bg-gray-800 w-full shadow-lg rounded">
+              <div className="rounded-t mb-0 px-0 border-0">
+                <div className="flex flex-wrap items-center px-4 py-2">
+                  <div className="relative w-full max-w-full flex-grow flex-1">
+                    <h3 className="font-semibold text-base text-gray-900 dark:text-gray-50">
+                      Booked Stations
+                    </h3>
+                  </div>
+                </div>
+                <div className="block w-full overflow-x-auto">
+                  <table className="items-center w-full bg-transparent border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                          Station
+                        </th>
+                        <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                          Date
+                        </th>
+                        <th className="px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="text-gray-700 dark:text-gray-100">
+                        <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                          Station #1
+                        </th>
+                        <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                          10:45 - 11:00, Tuesday, May 31, 2022
+                        </td>
+                        <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                          <div className="flex items-center">
+                            <span className="mr-2">70%</span>
+                            <div className="relative w-full">
+                              <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
+                                <div className="w-[70%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
             <div className="relative flex flex-col min-w-0 break-words bg-gray-50 dark:bg-gray-800 w-full shadow-lg rounded">
               <div className="rounded-t mb-0 px-0 border-0">
                 <div className="flex flex-wrap items-center px-4 py-2">
                   <div className="relative w-full max-w-full flex-grow flex-1">
                     <h3 className="font-semibold text-base text-gray-900 dark:text-gray-50">
-                      Остання активність
+                      Last Activity
                     </h3>
                   </div>
                 </div>
                 <div className="block w-full">
                   <div className="px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                    Сьогодні
+                    Today
                   </div>
                   <ul className="my-1">
                     <li className="flex px-4">
@@ -253,13 +267,13 @@ const IndexPage: NextPageWithLayout = () => {
                             >
                               Кушнірук Дмитро
                             </a>{' '}
-                            забронював станцію{' '}
+                            booked station{' '}
                             <a
-                              className="font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
+                              className="out font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
                               href="#0"
                               style={{ outline: 'none' }}
                             >
-                              Станція №1
+                              Station №1
                             </a>{' '}
                           </div>
                         </div>
@@ -277,13 +291,13 @@ const IndexPage: NextPageWithLayout = () => {
                       <div className="flex-grow flex items-center border-gray-100 text-sm text-gray-600 dark:text-gray-50 py-2">
                         <div className="flex-grow flex justify-between items-center">
                           <div className="self-center">
-                            Втрата з&apos;єднання зі станцією{' '}
+                            Loss of connection to the station{' '}
                             <a
                               className="font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
                               href="#0"
                               style={{ outline: 'none' }}
                             >
-                              Станція №4
+                              Station №4
                             </a>{' '}
                           </div>
                         </div>
@@ -291,7 +305,7 @@ const IndexPage: NextPageWithLayout = () => {
                     </li>
                   </ul>
                   <div className="px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                    Вчора
+                    Yesterday
                   </div>
                   <ul className="my-1">
                     <li className="flex px-4">
@@ -319,7 +333,7 @@ const IndexPage: NextPageWithLayout = () => {
                               href="#0"
                               style={{ outline: 'none' }}
                             >
-                              Станція №2
+                              Station №2
                             </a>
                           </div>
                         </div>
@@ -337,9 +351,9 @@ const IndexPage: NextPageWithLayout = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                      <th className="px-4 py-3">Станція</th>
-                      <th className="px-4 py-3">Черга</th>
-                      <th className="px-4 py-3">Статус</th>
+                      <th className="px-4 py-3">Station</th>
+                      <th className="px-4 py-3">Queue</th>
+                      <th className="px-4 py-3">Status</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
@@ -360,9 +374,9 @@ const IndexPage: NextPageWithLayout = () => {
                             ></div>
                           </div>
                           <div>
-                            <p className="font-semibold">Станція №1</p>
+                            <p className="font-semibold">Station №1</p>
                             <p className="text-xs text-gray-600 dark:text-gray-400">
-                              Датчики відстані
+                              Distance sensors
                             </p>
                           </div>
                         </div>
@@ -371,12 +385,12 @@ const IndexPage: NextPageWithLayout = () => {
                       <td className="px-4 py-3 text-xs">
                         <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
                           {' '}
-                          Доступна{' '}
+                          available{' '}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Забронювати
+                          Book
                         </button>
                       </td>
                     </tr>
@@ -396,9 +410,9 @@ const IndexPage: NextPageWithLayout = () => {
                             ></div>
                           </div>
                           <div>
-                            <p className="font-semibold">Станція №2</p>
+                            <p className="font-semibold">Station №2</p>
                             <p className="text-xs text-gray-600 dark:text-gray-400">
-                              Дисплей
+                              Display
                             </p>
                           </div>
                         </div>
@@ -407,12 +421,12 @@ const IndexPage: NextPageWithLayout = () => {
                       <td className="px-4 py-3 text-xs">
                         <span className="px-2 py-1 font-semibold leading-tight text-yellow-700 bg-yellow-100 rounded-full">
                           {' '}
-                          Використовується{' '}
+                          used{' '}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Забронювати
+                          Book
                         </button>
                       </td>
                     </tr>
@@ -432,7 +446,7 @@ const IndexPage: NextPageWithLayout = () => {
                             ></div>
                           </div>
                           <div>
-                            <p className="font-semibold">Станція №3</p>
+                            <p className="font-semibold">Station №3</p>
                             <p className="text-xs text-gray-600 dark:text-gray-400">
                               FLASH
                             </p>
@@ -443,12 +457,12 @@ const IndexPage: NextPageWithLayout = () => {
                       <td className="px-4 py-3 text-xs">
                         <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full dark:bg-green-700 dark:text-green-100">
                           {' '}
-                          Доступна{' '}
+                          available{' '}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Забронювати
+                          Book
                         </button>
                       </td>
                     </tr>
@@ -468,7 +482,7 @@ const IndexPage: NextPageWithLayout = () => {
                             ></div>
                           </div>
                           <div>
-                            <p className="font-semibold">Станція №4</p>
+                            <p className="font-semibold">Station №4</p>
                             <p className="text-xs text-gray-600 dark:text-gray-400">
                               CAN
                             </p>
@@ -479,12 +493,12 @@ const IndexPage: NextPageWithLayout = () => {
                       <td className="px-4 py-3 text-xs">
                         <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-700">
                           {' '}
-                          Недоступна{' '}
+                          unavailable{' '}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-gray-600 dark:bg-gray-100 border border-r-0 border-gray-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          Забронювати
+                          Book
                         </button>
                       </td>
                     </tr>
@@ -494,7 +508,7 @@ const IndexPage: NextPageWithLayout = () => {
               <div className="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
                 <span className="flex items-center col-span-3">
                   {' '}
-                  Станції 1-4 з 4{' '}
+                  Stations 1-4 of 4{' '}
                 </span>
                 <span className="col-span-2"></span>
                 {/* Pagination */}
