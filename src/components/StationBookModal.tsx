@@ -47,17 +47,17 @@ export const StationBookModal = NiceModal.create(() => {
 
   return (
     <div className="absolute top-0 left-0 z-30 w-full">
-      <div className="flex justify-center h-screen items-center backdrop-blur-sm backdrop-opacity-90 antialiased border-gray-200">
+      <div className="flex justify-center h-screen items-center backdrop-blur-sm backdrop-opacity-90 antialiased">
         <div
           onClick={() => modal.remove()}
           className="z-0 w-full h-full absolute top-0"
         ></div>
-        <div className="z-30 w-4/5 max-w-7xl h-[90vh] flex flex-col lg:flex-row border rounded-xl bg-white">
-          <div className="flex flex-col justify-start items-center p-6 lg:basis-2/5 border-b lg:border-r border-gray-300 lg:items-start">
+        <div className="z-30 w-4/5 max-w-7xl h-[90vh] flex flex-col lg:flex-row border rounded-xl bg-white dark:bg-gray-700 dark:border-gray-500">
+          <div className="flex flex-col justify-start items-center p-6 lg:basis-2/5 border-b lg:border-r border-gray-200 dark:border-gray-500 lg:items-start">
             <div className="relative w-full">
               <button
                 onClick={() => modal.remove()}
-                className="mb-3 absolute lg:static"
+                className="mb-3 absolute lg:static dark:text-gray-50"
               >
                 <svg
                   className="w-6 h-6"
@@ -75,13 +75,13 @@ export const StationBookModal = NiceModal.create(() => {
                 </svg>
               </button>
             </div>
-            <p className="mb-3 font-semibold text-2xl text-gray-800">
+            <p className="mb-3 font-semibold text-2xl text-gray-800 dark:text-gray-50">
               Станція №1
             </p>
             <div className="flex mb-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 mr-2"
+                className="h-6 w-6 mr-2 dark:text-gray-50"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -93,7 +93,7 @@ export const StationBookModal = NiceModal.create(() => {
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <p className="font-semibold text-gray-800">
+              <p className="font-semibold text-gray-800 dark:text-gray-50">
                 {sessionDurationMin} min
               </p>
             </div>
@@ -101,7 +101,7 @@ export const StationBookModal = NiceModal.create(() => {
               <div className="flex mb-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 mr-2"
+                  className="h-6 w-6 mr-2 dark:text-gray-50"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -113,7 +113,7 @@ export const StationBookModal = NiceModal.create(() => {
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                <p className="font-semibold text-gray-800">
+                <p className="font-semibold text-gray-800 dark:text-gray-50">
                   {format(selectedTimeSpot?.startTime || 0, spotTextFormat)}
                   {' - '}
                   {format(
@@ -146,7 +146,9 @@ export const StationBookModal = NiceModal.create(() => {
                 />
               </div>
               <div className="flex flex-col w-full overflow-auto sm:max-w-[270px] sm:basis-1/3 no-scrollbar">
-                <p className="mb-3">{format(selectedDay, 'PPP')}</p>
+                <p className="mb-3 dark:text-gray-50">
+                  {format(selectedDay, 'PPP')}
+                </p>
                 {timeSpots.map((timeSpot) =>
                   isEqual(
                     selectedTimeSpot?.startTime || 0,
@@ -174,7 +176,7 @@ export const StationBookModal = NiceModal.create(() => {
                       key={timeSpot.startTime.toString()}
                       onClick={() => setSelectedTimeSpot(timeSpot)}
                       disabled={timeSpot.status !== 'available'}
-                      className="text-center p-3 border rounded-md text-blue-500 font-bold border-blue-500 mb-3 last:mb-0 disabled:border-gray-600 disabled:text-gray-600"
+                      className="text-center p-3 border rounded-md text-blue-500 dark:text-gray-50 font-bold border-blue-500 dark:border-gray-50 mb-3 last:mb-0 disabled:border-gray-600 disabled:text-gray-600 dark:disabled:border-gray-600 dark:disabled:text-gray-600"
                     >
                       {format(timeSpot.startTime, spotTextFormat)}
                     </button>
@@ -187,7 +189,7 @@ export const StationBookModal = NiceModal.create(() => {
             <div className="p-6 w-full h-full">
               <div className="relative w-full">
                 <button
-                  className="h-0 absolute"
+                  className="h-0 absolute dark:text-gray-50"
                   onClick={() => setIsTimeSpotConfirmed(false)}
                 >
                   <svg

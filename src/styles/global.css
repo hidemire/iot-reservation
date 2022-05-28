@@ -14,6 +14,10 @@ body {
   width: 16rem;
 }
 
+.book-date-picker {
+  @apply dark:text-gray-50;
+}
+
 .book-date-picker .rdp-month {
   @apply w-full max-w-full;
 }
