@@ -1,3 +1,4 @@
+import 'react-day-picker/dist/style.css';
 import '../styles/global.css';
 import { ReactElement, ReactNode } from 'react';
 import { NextPage } from 'next';

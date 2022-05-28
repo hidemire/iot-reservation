@@ -14,8 +14,32 @@ body {
   width: 16rem;
 }
 
+.book-date-picker .rdp-month {
+  @apply w-full max-w-full;
+}
+
+.book-date-picker .rdp-month .rdp-table {
+  @apply w-full max-w-full;
+}
+
 @media only screen and (min-width: 768px) {
   .header-right {
     width: calc(100% - 16rem);
+  }
+}
+
+/*
+    https://github.com/tailwindlabs/tailwindcss/discussions/2394
+    https://github.com/tailwindlabs/tailwindcss/pull/5732
+*/
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 }
