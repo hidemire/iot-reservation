@@ -4,6 +4,7 @@ import NiceModal from '@ebay/nice-modal-react';
 import { NextPageWithLayout } from '~/pages/_app';
 import { ThemeChanger } from '~/components/ThemeChanger';
 import { StationBookModal } from '~/components/StationBookModal';
+import { StationViewModal } from '~/components/StationViewModal';
 
 const IndexPage: NextPageWithLayout = () => {
   const { data: session } = useSession();
@@ -15,6 +16,10 @@ const IndexPage: NextPageWithLayout = () => {
 
   const showBookModal = () => {
     NiceModal.show(StationBookModal);
+  };
+
+  const showViewModal = () => {
+    NiceModal.show(StationViewModal);
   };
 
   return (
@@ -219,7 +224,9 @@ const IndexPage: NextPageWithLayout = () => {
                     <tbody>
                       <tr className="text-gray-700 dark:text-gray-100">
                         <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-                          Station #1
+                          <button onClick={() => showViewModal()}>
+                            Station #1
+                          </button>
                         </th>
                         <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                           10:45 - 11:00, Tuesday, May 31, 2022
