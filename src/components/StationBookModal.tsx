@@ -38,6 +38,7 @@ export const StationBookModal = NiceModal.create(
           utils.invalidateQueries('order.active'),
           utils.invalidateQueries('station.time-spots'),
           utils.invalidateQueries('station.all'),
+          utils.invalidateQueries('activity.all'),
         ]);
       },
     });

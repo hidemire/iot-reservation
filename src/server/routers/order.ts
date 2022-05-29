@@ -29,7 +29,7 @@ export const orderRouter = createProtectedRouter()
       startTime: z.date(),
     }),
     async resolve({ ctx, input }) {
-      const { prisma } = ctx;
+      const { prisma, user } = ctx;
       const { stationId, startTime } = input;
 
       await prisma.$transaction(async (p) => {
@@ -52,8 +52,16 @@ export const orderRouter = createProtectedRouter()
             bookingEndAt: sub(add(startTime, { minutes: sessionDurationMin }), {
               seconds: 1,
             }),
-            userId: ctx.user.id,
+            userId: user.id,
             stationId,
+          },
+        });
+
+        await p.activity.create({
+          data: {
+            type: 'ORDER',
+            stationId: stationId,
+            userId: user.id,
           },
         });
       });

@@ -9,7 +9,7 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["interactiveTransactions"]
 }
 
@@ -34,8 +34,8 @@ model User {
   id    String @id @default(uuid())
   email String @unique
 
-  orders Order[]
-  activities Activities[]
+  orders     Order[]
+  activities Activity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -84,9 +84,9 @@ model Station {
   ip          String
   status      StationStatus @default(INACTIVE)
 
-  devices Device[]
-  orders  Order[]
-  activities Activities[]
+  devices    Device[]
+  orders     Order[]
+  activities Activity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -94,10 +94,11 @@ model Station {
   @@map("stations")
 }
 
-model Activities {
-  id        String @id @default(uuid())
+model Activity {
+  id        String              @id @default(uuid())
   userId    String
   stationId String
+  type      StationActivityType
 
   user    User    @relation(fields: [userId], references: [id])
   station Station @relation(fields: [stationId], references: [id])
