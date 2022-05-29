@@ -18,11 +18,18 @@ export const createContext = async ({
   | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
   const session = await getSession({ req });
   console.log('createContext for', session?.user?.name ?? 'unknown user');
+  let user;
+  if (session?.user?.email) {
+    user = await prisma.user.findUnique({
+      where: { email: session?.user?.email },
+    });
+  }
   return {
     req,
     res,
     prisma,
     session,
+    user,
   };
 };
 

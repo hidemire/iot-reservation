@@ -12,6 +12,7 @@ const sessionDurationMin = 15;
 export const StationBookModal = NiceModal.create(
   ({ stationId }: { stationId: string }) => {
     const modal = useModal();
+    const utils = trpc.useContext();
 
     const [isTImeSpotConfirmed, setIsTimeSpotConfirmed] = useState(false);
     const [selectedDay, setSelectedDay] = useState(new Date());
@@ -21,6 +22,20 @@ export const StationBookModal = NiceModal.create(
       'station.time-spots',
       { id: stationId },
     ]);
+
+    const createOrder = trpc.useMutation('order.create', {
+      async onSuccess() {
+        await utils.invalidateQueries(['order.active']);
+        await utils.invalidateQueries(['station.time-spots']);
+        modal.remove();
+      },
+      async onError() {
+        setSelectedDay(new Date());
+        setSelectedTimeSpot(undefined);
+        setIsTimeSpotConfirmed(false);
+        await utils.invalidateQueries(['station.time-spots']);
+      },
+    });
 
     const timeSpots = weekTimeSpots?.filter((weekTimeSpot) =>
       isSameDay(weekTimeSpot.startTime, selectedDay),
@@ -32,8 +47,13 @@ export const StationBookModal = NiceModal.create(
     };
 
     const onConfirm = () => {
-      modal.resolve({ selectedDay, selectedTimeSpot });
-      modal.remove();
+      if (selectedTimeSpot) {
+        modal.resolve({ selectedDay, selectedTimeSpot });
+        createOrder.mutate({
+          startTime: selectedTimeSpot.startTime,
+          stationId,
+        });
+      }
     };
 
     return (
@@ -204,7 +224,8 @@ export const StationBookModal = NiceModal.create(
                 <div className="h-full flex flex-col justify-center">
                   <button
                     onClick={() => onConfirm()}
-                    className="h-12 border rounded-md text-white bg-blue-500 font-bold border-blue-500"
+                    disabled={createOrder.isLoading}
+                    className="h-12 border rounded-md text-white bg-blue-500 font-bold border-blue-500 dark:disabled:bg-gray-400 disabled:bg-gray-300 disabled:border-gray-300 dark:disabled:border-gray-400"
                   >
                     confirm
                   </button>

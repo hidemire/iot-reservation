@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { add, set, startOfDay, endOfDay, isBefore } from 'date-fns';
+import {
+  add,
+  startOfDay,
+  endOfDay,
+  isBefore,
+  isWithinInterval,
+} from 'date-fns';
 import { TRPCError } from '@trpc/server';
 
 import { createRouter } from '~/server/createRouter';
@@ -30,7 +36,6 @@ export const stationRouter = createRouter()
       const { id } = input;
 
       const today = startOfDay(new Date());
-      console.log('🚀 ~ file: station.ts ~ line 34 ~ resolve ~ today', today);
 
       const station = await prisma.station.findUnique({
         where: { id },
@@ -58,9 +63,15 @@ export const stationRouter = createRouter()
 
         do {
           if (!isBefore(date, new Date())) {
+            const booked = station.orders.find((order) =>
+              isWithinInterval(date, {
+                start: order.bookingStartAt,
+                end: order.bookingEndAt,
+              }),
+            );
             timeSpots.push({
               startTime: date,
-              status: 'available',
+              status: !booked ? 'available' : 'booked',
             });
           }
 

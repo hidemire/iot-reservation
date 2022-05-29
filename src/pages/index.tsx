@@ -1,12 +1,15 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import NiceModal from '@ebay/nice-modal-react';
 import type { StationStatus } from '@prisma/client';
+import { add, format } from 'date-fns';
 
 import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
 import { ThemeChanger } from '~/components/ThemeChanger';
 import { StationBookModal } from '~/components/StationBookModal';
 import { StationViewModal } from '~/components/StationViewModal';
+
+const spotTextFormat = 'HH:mm';
 
 const stationStatusMapper: {
   [key in StationStatus]: { text: string; color: string };
@@ -34,6 +37,11 @@ const IndexPage: NextPageWithLayout = () => {
   }
 
   const { data: stations } = trpc.useQuery(['station.all'], {
+    refetchInterval: 60 * 1000,
+    refetchIntervalInBackground: true,
+  });
+
+  const { data: activeOrders } = trpc.useQuery(['order.active'], {
     refetchInterval: 60 * 1000,
     refetchIntervalInBackground: true,
   });
@@ -246,26 +254,38 @@ const IndexPage: NextPageWithLayout = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="text-gray-700 dark:text-gray-100">
-                        <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-                          <button onClick={() => showViewModal()}>
-                            Station #1
-                          </button>
-                        </th>
-                        <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                          10:45 - 11:00, Tuesday, May 31, 2022
-                        </td>
-                        <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                          <div className="flex items-center">
-                            <span className="mr-2">70%</span>
-                            <div className="relative w-full">
-                              <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
-                                <div className="w-[70%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600"></div>
+                      {activeOrders?.map((order) => (
+                        <tr
+                          key={order.id}
+                          className="text-gray-700 dark:text-gray-100"
+                        >
+                          <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
+                            <button onClick={() => showViewModal()}>
+                              {order.station.name}
+                            </button>
+                          </th>
+                          <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                            {format(order.bookingStartAt, spotTextFormat)}
+                            {' - '}
+                            {format(
+                              add(order.bookingEndAt, { seconds: 1 }),
+                              spotTextFormat,
+                            )}
+                            {', '}
+                            {format(order.bookingStartAt, 'EEEE, LLL dd, Y')}
+                          </td>
+                          <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                            <div className="flex items-center">
+                              <span className="mr-2">70%</span>
+                              <div className="relative w-full">
+                                <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
+                                  <div className="w-[70%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600"></div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>

@@ -6,6 +6,7 @@ import { TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 
 import { stationRouter } from './station';
+import { orderRouter } from './order';
 
 export const appRouter = createRouter()
   .transformer(superjson)
@@ -20,6 +21,7 @@ export const appRouter = createRouter()
       return 'yay!';
     },
   })
-  .merge('station.', stationRouter);
+  .merge('station.', stationRouter)
+  .merge('order.', orderRouter);
 
 export type AppRouter = typeof appRouter;
