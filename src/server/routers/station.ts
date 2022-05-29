@@ -8,11 +8,11 @@ import {
 } from 'date-fns';
 import { TRPCError } from '@trpc/server';
 
-import { createRouter } from '~/server/createRouter';
+import { createProtectedRouter } from '~/server/createRouter';
 import { prisma } from '~/server/prisma';
 import { TimeSpot } from '~/types';
 
-export const stationRouter = createRouter()
+export const stationRouter = createProtectedRouter()
   .query('all', {
     async resolve() {
       const stations = await prisma.station.findMany({

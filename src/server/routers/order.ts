@@ -2,11 +2,11 @@ import { z } from 'zod';
 import { add, sub } from 'date-fns';
 import { TRPCError } from '@trpc/server';
 
-import { createRouter } from '~/server/createRouter';
+import { createProtectedRouter } from '~/server/createRouter';
 
 const sessionDurationMin = 15;
 
-export const orderRouter = createRouter()
+export const orderRouter = createProtectedRouter()
   .query('active', {
     async resolve({ ctx }) {
       const { prisma } = ctx;
@@ -49,7 +49,7 @@ export const orderRouter = createRouter()
             bookingEndAt: sub(add(startTime, { minutes: sessionDurationMin }), {
               seconds: 1,
             }),
-            userId: ctx.user?.id as string,
+            userId: ctx.user.id,
             stationId,
           },
         });
