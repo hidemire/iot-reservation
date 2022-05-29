@@ -15,8 +15,24 @@ import { TimeSpot } from '~/types';
 export const stationRouter = createProtectedRouter()
   .query('all', {
     async resolve() {
+      const today = new Date();
+      const endDay = endOfDay(today);
+
       const stations = await prisma.station.findMany({
         orderBy: { name: 'asc' },
+        include: {
+          orders: {
+            where: {
+              bookingStartAt: {
+                gte: today,
+                lt: endDay,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
+        },
       });
 
       return stations.map((station) => ({
@@ -24,7 +40,7 @@ export const stationRouter = createProtectedRouter()
         name: station.name,
         status: station.status,
         description: station.description,
-        queue: 1,
+        queue: station.orders.length,
       }));
     },
   })

@@ -25,15 +25,20 @@ export const StationBookModal = NiceModal.create(
 
     const createOrder = trpc.useMutation('order.create', {
       async onSuccess() {
-        await utils.invalidateQueries(['order.active']);
-        await utils.invalidateQueries(['station.time-spots']);
+        modal.resolve({ selectedDay, selectedTimeSpot });
         modal.remove();
       },
       async onError() {
         setSelectedDay(new Date());
         setSelectedTimeSpot(undefined);
         setIsTimeSpotConfirmed(false);
-        await utils.invalidateQueries(['station.time-spots']);
+      },
+      async onSettled() {
+        await Promise.allSettled([
+          utils.invalidateQueries('order.active'),
+          utils.invalidateQueries('station.time-spots'),
+          utils.invalidateQueries('station.all'),
+        ]);
       },
     });
 
@@ -48,7 +53,6 @@ export const StationBookModal = NiceModal.create(
 
     const onConfirm = () => {
       if (selectedTimeSpot) {
-        modal.resolve({ selectedDay, selectedTimeSpot });
         createOrder.mutate({
           startTime: selectedTimeSpot.startTime,
           stationId,

@@ -16,6 +16,9 @@ export const orderRouter = createProtectedRouter()
         include: {
           station: true,
         },
+        orderBy: {
+          bookingStartAt: 'asc',
+        },
       });
       return orders;
     },
