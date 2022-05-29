@@ -1,7 +1,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import NiceModal from '@ebay/nice-modal-react';
 import type { StationStatus } from '@prisma/client';
-import { add, format } from 'date-fns';
+import { add, format, isAfter } from 'date-fns';
 
 import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
@@ -250,7 +250,6 @@ const IndexPage: NextPageWithLayout = () => {
                         <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                           Date
                         </th>
-                        <th className="px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -260,7 +259,14 @@ const IndexPage: NextPageWithLayout = () => {
                           className="text-gray-700 dark:text-gray-100"
                         >
                           <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-                            <button onClick={() => showViewModal()}>
+                            <button
+                              disabled={isAfter(
+                                order.bookingStartAt,
+                                new Date(),
+                              )}
+                              onClick={() => showViewModal()}
+                              className="disabled:cursor-not-allowed"
+                            >
                               {order.station.name}
                             </button>
                           </th>
@@ -273,16 +279,6 @@ const IndexPage: NextPageWithLayout = () => {
                             )}
                             {', '}
                             {format(order.bookingStartAt, 'EEEE, LLL dd, Y')}
-                          </td>
-                          <td className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                            <div className="flex items-center">
-                              <span className="mr-2">70%</span>
-                              <div className="relative w-full">
-                                <div className="overflow-hidden h-2 text-xs flex rounded bg-blue-200">
-                                  <div className="w-[70%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-600"></div>
-                                </div>
-                              </div>
-                            </div>
                           </td>
                         </tr>
                       ))}
