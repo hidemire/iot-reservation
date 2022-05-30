@@ -23,7 +23,7 @@ export const stationRouter = createProtectedRouter()
         include: {
           orders: {
             where: {
-              bookingStartAt: {
+              bookingEndAt: {
                 gte: today,
                 lt: endDay,
               },
