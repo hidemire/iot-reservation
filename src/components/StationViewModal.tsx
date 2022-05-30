@@ -12,7 +12,7 @@ const ONE_MINUTE = 60;
 export const StationViewModal = NiceModal.create(() => {
   const modal = useModal();
 
-  const [selectedTimeSpot, setSelectedTimeSpot] = useState<TimeSpot>({
+  const [selectedTimeSpot] = useState<TimeSpot>({
     startTime: new Date(2022, 4, 28, 18, 0),
     status: 'available',
   });
