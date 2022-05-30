@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import NiceModal from '@ebay/nice-modal-react';
 import type { StationStatus } from '@prisma/client';
@@ -35,9 +36,14 @@ const refreshParams = {
 
 const IndexPage: NextPageWithLayout = () => {
   const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!session) {
-    signIn('google');
+    if (mounted) signIn('google');
     return <></>;
   }
 
