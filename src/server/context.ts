@@ -4,7 +4,8 @@ import { NodeHTTPCreateContextFnOptions } from '@trpc/server/adapters/node-http'
 import { IncomingMessage } from 'http';
 import { getSession } from 'next-auth/react';
 import ws from 'ws';
-import { prisma } from './prisma';
+
+import { Redis } from '~/server/lib/redis';
 
 /**
  * Creates context for an incoming request
@@ -16,6 +17,7 @@ export const createContext = async ({
 }:
   | trpcNext.CreateNextContextOptions
   | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
+  const redis = Redis.instance();
   const session = await getSession({ req });
   console.log('createContext for', session?.user?.name ?? 'unknown user');
   let user;
@@ -28,6 +30,7 @@ export const createContext = async ({
     req,
     res,
     prisma,
+    redis,
     session,
     user,
   };

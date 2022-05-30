@@ -12,6 +12,7 @@ const env = envalid.cleanEnv(process.env, {
   JWT_SECRET: envalid.str(),
   NODE_ENV: envalid.str({ choices: ['development', 'test', 'production'] }),
   WS_URL: envalid.url(),
+  REDIS_CONNECTION_URL: envalid.url(),
 });
 
 const envSchema = z.object({

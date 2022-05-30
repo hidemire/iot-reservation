@@ -4,11 +4,23 @@ services:
     image: postgres:14.2
     ports:
       - '5932:5432' # expose pg on port 5932 to not collide with pg from elswhere
-    restart: always
+    restart: unless-stopped
     volumes:
       - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: ${PGPASSWORD}
       POSTGRES_HOST_AUTH_METHOD: trust
+
+  redis:
+    image: bitnami/redis:6.2
+    restart: unless-stopped
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6399:6379' # expose redis on port 6399 to not collide with redis from elswhere
+    volumes:
+      - redis_data:/bitnami/redis/data
+    command: /opt/bitnami/scripts/redis/run.sh --notify-keyspace-events KEA
 volumes:
   db_data:
+  redis_data:
