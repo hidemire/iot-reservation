@@ -9,12 +9,12 @@ import {
 import { TRPCError } from '@trpc/server';
 
 import { createProtectedRouter } from '~/server/createRouter';
-import { prisma } from '~/server/prisma';
 import { TimeSpot } from '~/types';
 
 export const stationRouter = createProtectedRouter()
   .query('all', {
-    async resolve() {
+    async resolve({ ctx }) {
+      const { prisma } = ctx;
       const today = new Date();
       const endDay = endOfDay(today);
 
@@ -48,7 +48,8 @@ export const stationRouter = createProtectedRouter()
     input: z.object({
       id: z.string().uuid(),
     }),
-    async resolve({ input }) {
+    async resolve({ ctx, input }) {
+      const { prisma } = ctx;
       const { id } = input;
 
       const today = startOfDay(new Date());

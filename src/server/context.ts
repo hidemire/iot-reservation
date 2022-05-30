@@ -5,6 +5,7 @@ import { IncomingMessage } from 'http';
 import { getSession } from 'next-auth/react';
 import ws from 'ws';
 
+import { DB } from '~/server/db';
 import { Redis } from '~/server/lib/redis';
 
 /**
@@ -17,6 +18,7 @@ export const createContext = async ({
 }:
   | trpcNext.CreateNextContextOptions
   | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
+  const prisma = DB.instance().client;
   const redis = Redis.instance();
   const session = await getSession({ req });
   console.log('createContext for', session?.user?.name ?? 'unknown user');

@@ -1,8 +1,9 @@
 import NextAuth from 'next-auth';
 import { AppProviders } from 'next-auth/providers';
 import GoogleProvider from 'next-auth/providers/google';
+
 import { serverRuntimeConfig } from '~/utils/publicRuntimeConfig';
-import { prisma } from '~/server/prisma';
+import { DB } from '~/server/db';
 
 const providers: AppProviders = [];
 
@@ -29,6 +30,8 @@ export default NextAuth({
         )
       )
         return false;
+
+      const prisma = DB.instance().client;
 
       await prisma.user.upsert({
         create: { email: profile.email },
