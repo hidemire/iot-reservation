@@ -9,10 +9,11 @@ type DBConstructorParams = {
 };
 
 export class DB {
-  static async init(params: DBConstructorParams) {
+  static async init(params: DBConstructorParams): Promise<DB> {
     dbGlobal.db = new DB(params);
     await dbGlobal.db.client.$connect();
     console.log('db connected');
+    return dbGlobal.db;
   }
 
   static instance() {

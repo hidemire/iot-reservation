@@ -8,6 +8,9 @@ import ws from 'ws';
 import { DB } from '~/server/db';
 import { Redis } from '~/server/lib/redis';
 
+import { ActivityService } from '~/server/services/ActivityService';
+import { StationService } from '~/server/services/StationService';
+
 /**
  * Creates context for an incoming request
  * @link https://trpc.io/docs/context
@@ -28,6 +31,12 @@ export const createContext = async ({
       where: { email: session?.user?.email },
     });
   }
+
+  const services = {
+    activity: ActivityService.instance(),
+    station: StationService.instance(),
+  };
+
   return {
     req,
     res,
@@ -35,6 +44,7 @@ export const createContext = async ({
     redis,
     session,
     user,
+    services,
   };
 };
 

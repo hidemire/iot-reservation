@@ -1016,6 +1016,11 @@
   "resolved" "https://registry.npmjs.org/@types/node/-/node-17.0.35.tgz"
   "version" "17.0.35"
 
+"@types/ping@^0.4.1":
+  "integrity" "sha512-q/D+xQvoqrHvntvz2A0Pb0ImYwnN3zakluUp8O2qoogGoVMVbdY2K/ulxHcCh9TzYzVoojayHBa9gYQDIZ4v0A=="
+  "resolved" "https://registry.npmjs.org/@types/ping/-/ping-0.4.1.tgz"
+  "version" "0.4.1"
+
 "@types/prettier@^2.1.5":
   "integrity" "sha512-XFjFHmaLVifrAKaZ+EKghFHtHSUonyw8P2Qmy2/+osBnrKbH9UYtlK10zg8/kCt47MFilll/DEDKy3DHfJ0URw=="
   "resolved" "https://registry.npmjs.org/@types/prettier/-/prettier-2.6.1.tgz"
@@ -5490,6 +5495,14 @@
   "resolved" "https://registry.npmjs.org/pify/-/pify-3.0.0.tgz"
   "version" "3.0.0"
 
+"ping@^0.4.2":
+  "integrity" "sha512-1uAw0bzHtrPbPo2s6no06oZAzY6KqKclEJR1JRZKIHKXKlPdrz9N0/1MPPB+BbrvMjN3Mk0pcod3bfLNZFRo9w=="
+  "resolved" "https://registry.npmjs.org/ping/-/ping-0.4.2.tgz"
+  "version" "0.4.2"
+  dependencies:
+    "q" "1.x"
+    "underscore" "^1.12.0"
+
 "pirates@^4.0.4":
   "integrity" "sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ=="
   "resolved" "https://registry.npmjs.org/pirates/-/pirates-4.0.5.tgz"
@@ -5715,6 +5728,11 @@
   "version" "2.1.1"
   dependencies:
     "escape-goat" "^2.0.0"
+
+"q@1.x":
+  "integrity" "sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc="
+  "resolved" "https://registry.npmjs.org/q/-/q-1.5.1.tgz"
+  "version" "1.5.1"
 
 "qrcode-terminal@^0.12.0":
   "version" "0.12.0"
@@ -6768,6 +6786,11 @@
   "integrity" "sha512-WxONCrssBM8TSPRqN5EmsjVrsv4A8X12J4ArBiiayv3DyyG3ZlIg6yysuuSYdZsVz3TKcTg2fd//Ujd4CHV1iA=="
   "resolved" "https://registry.npmjs.org/undefsafe/-/undefsafe-2.0.5.tgz"
   "version" "2.0.5"
+
+"underscore@^1.12.0":
+  "integrity" "sha512-QvjkYpiD+dJJraRA8+dGAU4i7aBbb2s0S3jA45TFOvg2VgqvdCDd/3N6CqA8gluk1W91GLoXg5enMUx560QzuA=="
+  "resolved" "https://registry.npmjs.org/underscore/-/underscore-1.13.3.tgz"
+  "version" "1.13.3"
 
 "unique-filename@^1.1.1":
   "version" "1.1.1"
