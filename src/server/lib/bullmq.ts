@@ -1,6 +1,7 @@
 import { Queue, QueueScheduler, Worker, Job } from 'bullmq';
 import type IORedis from 'ioredis';
-import { EventEmitter } from 'stream';
+
+import { MyEmitter } from '~/utils/MyEmitter';
 
 const bullmqGlobal = global as typeof global & {
   bullmq?: BullMQ;
@@ -9,29 +10,7 @@ const bullmqGlobal = global as typeof global & {
 type BullMQConstructorParams = {
   connection: IORedis;
 };
-
-interface BullMQEventEmitterEvents {
-  repeatable: (data: Job) => void;
-}
-
-declare interface BullMQEventEmitter {
-  on<U extends keyof BullMQEventEmitterEvents>(
-    event: U,
-    listener: BullMQEventEmitterEvents[U],
-  ): this;
-  once<U extends keyof BullMQEventEmitterEvents>(
-    event: U,
-    listener: BullMQEventEmitterEvents[U],
-  ): this;
-  emit<U extends keyof BullMQEventEmitterEvents>(
-    event: U,
-    ...args: Parameters<BullMQEventEmitterEvents[U]>
-  ): boolean;
-}
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-class BullMQEventEmitter extends EventEmitter {}
-
-export class BullMQ extends BullMQEventEmitter {
+export class BullMQ extends MyEmitter<{ repeatable: Job }> {
   static async init(params: BullMQConstructorParams): Promise<BullMQ> {
     bullmqGlobal.bullmq = new BullMQ(params);
     return bullmqGlobal.bullmq;
