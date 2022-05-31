@@ -1,5 +1,4 @@
-import { RedisClientType } from '@redis/client';
-import * as redis from 'redis';
+import IORedis from 'ioredis';
 
 const redisGlobal = global as typeof global & {
   redis?: Redis;
@@ -10,10 +9,10 @@ type RedisConstructorParams = {
 };
 
 export class Redis {
-  static async init(params: RedisConstructorParams) {
+  static async init(params: RedisConstructorParams): Promise<Redis> {
     redisGlobal.redis = new Redis(params);
-    await redisGlobal.redis.client.connect();
     console.log(`redis service connected to: ${params.redisConnectionUrl}`);
+    return redisGlobal.redis;
   }
 
   static instance() {
@@ -24,9 +23,15 @@ export class Redis {
     return redisGlobal.redis;
   }
 
-  client: RedisClientType;
+  connection;
 
   constructor({ redisConnectionUrl }: RedisConstructorParams) {
-    this.client = redis.createClient({ url: redisConnectionUrl });
+    this.connection = new IORedis(redisConnectionUrl, {
+      maxRetriesPerRequest: null,
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+    });
   }
 }
