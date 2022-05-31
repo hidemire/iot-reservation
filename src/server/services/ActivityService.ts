@@ -50,7 +50,10 @@ export class ActivityService extends MyEmitter<{ 'create-activity': null }> {
   }
 
   private async _handleActivityCreations() {
-    await this.redisSubscriber.subscribe('create-activity', () => {
+    await this.redisSubscriber.subscribe('create-activity', (err) => {
+      if (err) throw err;
+    });
+    this.redisSubscriber.on('message', () => {
       this.emit('create-activity', null);
     });
   }
