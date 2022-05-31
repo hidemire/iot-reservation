@@ -22,6 +22,17 @@ services:
       - redis_data:/bitnami/redis/data
     command: /opt/bitnami/scripts/redis/run.sh --notify-keyspace-events KEA
 
+  redis-commander:
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: unless-stopped
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_HOSTS=label:redis:6379
+    ports:
+      - 8081:8081
+    depends_on:
+      - redis
+
   bullboard:
     image: deadly0/bull-board
     restart: unless-stopped
