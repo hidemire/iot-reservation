@@ -46,7 +46,7 @@ export class StationService {
 
   async startStationsStatusCheck() {
     await this.bullMQ.repeatableQueue.add('station-status-check', null, {
-      repeat: { cron: '* * * * *' },
+      repeat: { cron: '*/10 * * * * *' },
     });
 
     this.bullMQ.on('repeatable', (job) => {
@@ -95,18 +95,17 @@ export class StationService {
           });
 
           if (
-            currentStatus === 'USED' ||
-            (currentStatus === 'ACTIVE' && station.status === 'USED')
-          )
-            return;
-
-          const activityType =
-            currentStatus === 'ACTIVE' ? 'CONNECT' : 'DISCONNECT';
-          await this.activityService.createActivity({
-            type: activityType,
-            stationId: station.id,
-            userId: null,
-          });
+            ['ACTIVE', 'INACTIVE'].includes(currentStatus) ||
+            station.status === 'INACTIVE'
+          ) {
+            const activityType =
+              currentStatus === 'INACTIVE' ? 'DISCONNECT' : 'CONNECT';
+            await this.activityService.createActivity({
+              type: activityType,
+              stationId: station.id,
+              userId: null,
+            });
+          }
         }
       }),
     );
