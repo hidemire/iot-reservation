@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:14.2
     ports:
-      - '5932:5432' # expose pg on port 5932 to not collide with pg from elswhere
+      - 5932:5432 # expose pg on port 5932 to not collide with pg from elswhere
     restart: unless-stopped
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -17,10 +17,20 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
-      - '6399:6379' # expose redis on port 6399 to not collide with redis from elswhere
+      - 6399:6379 # expose redis on port 6399 to not collide with redis from elswhere
     volumes:
       - redis_data:/bitnami/redis/data
     command: /opt/bitnami/scripts/redis/run.sh --notify-keyspace-events KEA
+
+  bullboard:
+    image: deadly0/bull-board
+    restart: unless-stopped
+    environment:
+      - REDIS_HOST=redis
+    ports:
+      - 3010:3000
+    depends_on:
+      - redis
 volumes:
   db_data:
   redis_data:
