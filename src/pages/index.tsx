@@ -321,42 +321,44 @@ const IndexPage: NextPageWithLayout = () => {
                             {format(day, 'EEEE, LLL dd, Y')}
                           </div>
                           <ul className="my-1">
-                            {activities?.[day]?.map((activity) => (
-                              <li
-                                key={activity.id}
-                                className="flex px-4  border-b last:border-b-0 border-gray-100 dark:border-gray-400"
-                              >
-                                <div className="w-9 h-9 rounded-full flex-shrink-0 bg-indigo-500 my-2 mr-3">
-                                  <svg
-                                    className="w-9 h-9 fill-current text-indigo-50"
-                                    viewBox="0 0 36 36"
-                                  >
-                                    <path d="M18 10c-4.4 0-8 3.1-8 7s3.6 7 8 7h.6l5.4 2v-4.4c1.2-1.2 2-2.8 2-4.6 0-3.9-3.6-7-8-7zm4 10.8v2.3L18.9 22H18c-3.3 0-6-2.2-6-5s2.7-5 6-5 6 2.2 6 5c0 2.2-2 3.8-2 3.8z"></path>
-                                  </svg>
-                                </div>
-                                <div className="flex-grow flex items-center text-sm text-gray-600 dark:text-gray-100 py-2">
-                                  <div className="flex-grow flex justify-between items-center">
-                                    <div className="self-center">
-                                      <a
-                                        className="font-medium text-gray-800 hover:text-gray-900 dark:text-gray-50 dark:hover:text-gray-100"
-                                        href="#0"
-                                        style={{ outline: 'none' }}
-                                      >
-                                        {activity.user.email.split('@')[0]}
-                                      </a>{' '}
-                                      booked station{' '}
-                                      <a
-                                        className="out font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
-                                        href="#0"
-                                        style={{ outline: 'none' }}
-                                      >
-                                        {activity.station.name}
-                                      </a>{' '}
+                            {activities?.[day]
+                              ?.filter((activity) => activity.user !== null)
+                              .map((activity) => (
+                                <li
+                                  key={activity.id}
+                                  className="flex px-4  border-b last:border-b-0 border-gray-100 dark:border-gray-400"
+                                >
+                                  <div className="w-9 h-9 rounded-full flex-shrink-0 bg-indigo-500 my-2 mr-3">
+                                    <svg
+                                      className="w-9 h-9 fill-current text-indigo-50"
+                                      viewBox="0 0 36 36"
+                                    >
+                                      <path d="M18 10c-4.4 0-8 3.1-8 7s3.6 7 8 7h.6l5.4 2v-4.4c1.2-1.2 2-2.8 2-4.6 0-3.9-3.6-7-8-7zm4 10.8v2.3L18.9 22H18c-3.3 0-6-2.2-6-5s2.7-5 6-5 6 2.2 6 5c0 2.2-2 3.8-2 3.8z"></path>
+                                    </svg>
+                                  </div>
+                                  <div className="flex-grow flex items-center text-sm text-gray-600 dark:text-gray-100 py-2">
+                                    <div className="flex-grow flex justify-between items-center">
+                                      <div className="self-center">
+                                        <a
+                                          className="font-medium text-gray-800 hover:text-gray-900 dark:text-gray-50 dark:hover:text-gray-100"
+                                          href="#0"
+                                          style={{ outline: 'none' }}
+                                        >
+                                          {activity.user?.email.split('@')[0]}
+                                        </a>{' '}
+                                        booked station{' '}
+                                        <a
+                                          className="out font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
+                                          href="#0"
+                                          style={{ outline: 'none' }}
+                                        >
+                                          {activity.station?.name}
+                                        </a>{' '}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              </li>
-                            ))}
+                                </li>
+                              ))}
                           </ul>
                         </div>
                       ))}

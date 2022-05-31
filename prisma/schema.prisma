@@ -25,7 +25,7 @@ enum StationStatus {
 }
 
 enum StationActivityType {
-  DISCONECT
+  DISCONNECT
   CONNECT
   ORDER
 }
@@ -96,12 +96,12 @@ model Station {
 
 model Activity {
   id        String              @id @default(uuid())
-  userId    String
-  stationId String
+  userId    String?
+  stationId String?
   type      StationActivityType
 
-  user    User    @relation(fields: [userId], references: [id])
-  station Station @relation(fields: [stationId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
+  station Station? @relation(fields: [stationId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
