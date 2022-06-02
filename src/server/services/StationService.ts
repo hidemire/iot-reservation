@@ -50,10 +50,10 @@ export class StationService {
       repeat: { cron: '*/10 * * * * *' },
     });
 
-    this.bullMQ.on('repeatable', (job) => {
+    this.bullMQ.on('repeatable', async (job) => {
       if (job.name === 'station-status-check') {
-        this._handleStationsStatusUpdate();
-        this._handleStationNetworkConfigCheck();
+        await this._handleStationsStatusUpdate();
+        await this._handleStationNetworkConfigCheck();
       }
     });
   }
