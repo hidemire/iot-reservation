@@ -5,10 +5,6 @@ import type { DB } from '~/server/db';
 import type { BullMQ } from '~/server/lib/bullmq';
 import type { ActivityService } from '~/server/services/ActivityService';
 
-const stationServiceGlobal = global as typeof global & {
-  stationService?: StationService;
-};
-
 type StationServiceConstructorParams = {
   db: DB;
   bullMQ: BullMQ;
@@ -16,20 +12,6 @@ type StationServiceConstructorParams = {
 };
 
 export class StationService {
-  static async init(
-    params: StationServiceConstructorParams,
-  ): Promise<StationService> {
-    stationServiceGlobal.stationService = new StationService(params);
-    return stationServiceGlobal.stationService;
-  }
-
-  static instance() {
-    if (!stationServiceGlobal.stationService) {
-      throw new Error(`${this.name} not initialized`);
-    }
-    return stationServiceGlobal.stationService;
-  }
-
   db;
   bullMQ;
   activityService;
