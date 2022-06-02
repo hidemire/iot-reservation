@@ -3,7 +3,7 @@ import { AppProviders } from 'next-auth/providers';
 import GoogleProvider from 'next-auth/providers/google';
 
 import { serverRuntimeConfig } from '~/utils/publicRuntimeConfig';
-import { DB } from '~/server/db';
+import { getDIContainer } from '~/server/bootstrap';
 
 const providers: AppProviders = [];
 
@@ -31,7 +31,7 @@ export default NextAuth({
       )
         return false;
 
-      const prisma = DB.instance().client;
+      const prisma = getDIContainer().resolve('db').client;
 
       await prisma.user.upsert({
         create: { email: profile.email },
