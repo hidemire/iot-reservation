@@ -9,7 +9,7 @@ const sessionDurationMin = 15;
 export const orderRouter = createProtectedRouter()
   .query('active', {
     async resolve({ ctx }) {
-      const { prisma } = ctx;
+      const prisma = ctx.scope.resolve('db').client;
       const today = new Date();
       const orders = await prisma.order.findMany({
         where: { userId: ctx.user?.id, bookingEndAt: { gt: today } },
@@ -29,8 +29,9 @@ export const orderRouter = createProtectedRouter()
       startTime: z.date(),
     }),
     async resolve({ ctx, input }) {
-      const { prisma, user } = ctx;
+      const { scope, user } = ctx;
       const { stationId, startTime } = input;
+      const prisma = scope.resolve('db').client;
 
       await prisma.$transaction(async (p) => {
         const stationOrders = await p.order.findMany({

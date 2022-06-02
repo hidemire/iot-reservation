@@ -14,7 +14,7 @@ import { TimeSpot } from '~/types';
 export const stationRouter = createProtectedRouter()
   .query('all', {
     async resolve({ ctx }) {
-      const { prisma } = ctx;
+      const prisma = ctx.scope.resolve('db').client;
       const today = new Date();
       const endDay = endOfDay(today);
 
@@ -49,7 +49,7 @@ export const stationRouter = createProtectedRouter()
       id: z.string().uuid(),
     }),
     async resolve({ ctx, input }) {
-      const { prisma } = ctx;
+      const prisma = ctx.scope.resolve('db').client;
       const { id } = input;
 
       const today = startOfDay(new Date());

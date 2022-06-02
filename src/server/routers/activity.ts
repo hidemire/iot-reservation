@@ -6,7 +6,8 @@ import { createProtectedRouter } from '~/server/createRouter';
 export const activityRouter = createProtectedRouter()
   .query('all', {
     async resolve({ ctx }) {
-      const { prisma } = ctx;
+      const prisma = ctx.scope.resolve('db').client;
+
       const activities = await prisma.activity.findMany({
         orderBy: {
           createdAt: 'desc',
@@ -30,7 +31,7 @@ export const activityRouter = createProtectedRouter()
   })
   .subscription('onCreated', {
     resolve({ ctx }) {
-      const activityService = ctx.services.activity;
+      const activityService = ctx.scope.resolve('activityService');
       return new Subscription<null>((emit) => {
         const onActivityCreated = () => {
           emit.data(null);

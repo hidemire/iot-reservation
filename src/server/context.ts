@@ -5,11 +5,7 @@ import { IncomingMessage } from 'http';
 import { getSession } from 'next-auth/react';
 import ws from 'ws';
 
-import { DB } from '~/server/db';
-import { Redis } from '~/server/lib/redis';
-
-import { ActivityService } from '~/server/services/ActivityService';
-import { StationService } from '~/server/services/StationService';
+import { getDIContainer } from '~/server/bootstrap';
 
 /**
  * Creates context for an incoming request
@@ -21,8 +17,9 @@ export const createContext = async ({
 }:
   | trpcNext.CreateNextContextOptions
   | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>) => {
-  const prisma = DB.instance().client;
-  const redis = Redis.instance();
+  const scope = getDIContainer().createScope();
+
+  const prisma = scope.resolve('db').client;
   const session = await getSession({ req });
   console.log('createContext for', session?.user?.name ?? 'unknown user');
   let user;
@@ -32,19 +29,12 @@ export const createContext = async ({
     });
   }
 
-  const services = {
-    activity: ActivityService.instance(),
-    station: StationService.instance(),
-  };
-
   return {
     req,
     res,
-    prisma,
-    redis,
     session,
     user,
-    services,
+    scope,
   };
 };
 
