@@ -72,8 +72,8 @@ const IndexPage: NextPageWithLayout = () => {
     NiceModal.show(StationBookModal, { stationId: id });
   };
 
-  const showViewModal = () => {
-    NiceModal.show(StationViewModal);
+  const showViewModal = (id: string) => {
+    NiceModal.show(StationViewModal, { orderId: id });
   };
 
   return (
@@ -282,11 +282,11 @@ const IndexPage: NextPageWithLayout = () => {
                         >
                           <th className="border-t-0 px-4 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
                             <button
-                              disabled={isAfter(
-                                order.bookingStartAt,
-                                new Date(),
-                              )}
-                              onClick={() => showViewModal()}
+                              disabled={
+                                isAfter(order.bookingStartAt, new Date()) ||
+                                order.station.status !== 'USED'
+                              }
+                              onClick={() => showViewModal(order.id)}
                               className="disabled:cursor-not-allowed"
                             >
                               {order.station.name}
