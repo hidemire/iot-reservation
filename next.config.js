@@ -36,5 +36,6 @@ module.exports = getConfig({
     NODE_ENV: env.NODE_ENV,
     APP_URL: env.APP_URL,
     WS_URL: env.WS_URL,
+    TRAEFIK_PUBLIC_HOST: env.TRAEFIK_PUBLIC_HOST,
   },
 });

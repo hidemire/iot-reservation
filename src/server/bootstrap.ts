@@ -46,7 +46,9 @@ export const bootstrap = async (config: typeof env) => {
       ),
     // Services
     activityService: asClass(ActivityService).singleton(),
-    stationService: asClass(StationService).singleton(),
+    stationService: asClass(StationService)
+      .singleton()
+      .inject(() => ({ traefikPublicHost: config.TRAEFIK_PUBLIC_HOST })),
   });
 
   await container.resolve('db').client.$connect();

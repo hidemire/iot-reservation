@@ -23,6 +23,60 @@ export const orderRouter = createProtectedRouter()
       return orders;
     },
   })
+  .query('info', {
+    input: z.object({
+      orderId: z.string().uuid(),
+    }),
+    async resolve({ ctx, input }) {
+      const prisma = ctx.scope.resolve('db').client;
+      const stationService = ctx.scope.resolve('stationService');
+      const order = await prisma.order.findUnique({
+        where: { id: input.orderId },
+        include: {
+          station: true,
+        },
+      });
+      if (!order) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'order not found',
+        });
+      }
+      const {
+        id: orderId,
+        bookingStartAt,
+        bookingEndAt,
+        status: orderStatus,
+        station,
+      } = order;
+      const {
+        id: stationId,
+        name,
+        status: stationStatus,
+        description,
+      } = station;
+
+      const connectionConfig = await stationService.getStationConnectionConfig(
+        stationId,
+      );
+
+      return {
+        order: {
+          id: orderId,
+          bookingStartAt,
+          bookingEndAt,
+          status: orderStatus,
+        },
+        station: {
+          id: stationId,
+          name,
+          status: stationStatus,
+          description,
+          connectionConfig,
+        },
+      };
+    },
+  })
   .mutation('create', {
     input: z.object({
       stationId: z.string().uuid(),

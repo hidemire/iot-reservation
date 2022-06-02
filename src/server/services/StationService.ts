@@ -11,6 +11,7 @@ type StationServiceConstructorParams = {
   bullMQ: BullMQ;
   redis: Redis;
   activityService: ActivityService;
+  traefikPublicHost: string;
 };
 
 const TRAEFIK_TCP_ROUTERS_KEYS = {
@@ -28,17 +29,20 @@ export class StationService {
   bullMQ;
   redis;
   activityService;
+  traefikPublicHost;
 
   constructor({
     db,
     bullMQ,
     redis,
     activityService,
+    traefikPublicHost,
   }: StationServiceConstructorParams) {
     this.db = db;
     this.bullMQ = bullMQ;
     this.redis = redis;
     this.activityService = activityService;
+    this.traefikPublicHost = traefikPublicHost;
   }
 
   async startStationsStatusCheck() {
@@ -206,5 +210,29 @@ export class StationService {
         }
       }),
     );
+  }
+
+  async getStationConnectionConfig(stationId: string) {
+    const r = this.redis.connection;
+    const prisma = this.db.client;
+    const station = await prisma.station.findUnique({
+      where: { id: stationId },
+    });
+
+    if (!station) {
+      throw new Error('station not found');
+    }
+
+    const stationConfigKeys = Object.fromEntries(
+      Object.entries(TRAEFIK_TCP_ROUTERS_KEYS).map(([key, traefikKey]) => [
+        key,
+        traefikKey.replace('$1', station.id),
+      ]),
+    ) as TRAEFIK_TCP_ROUTERS_KEYS_TYPE;
+
+    const entrypoint = await r.get(stationConfigKeys.ENTRYPOINTS);
+    if (!entrypoint) return [];
+
+    return [{ port: parseInt(entrypoint, 10), host: this.traefikPublicHost }];
   }
 }

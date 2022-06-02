@@ -13,6 +13,7 @@ const env = envalid.cleanEnv(process.env, {
   NODE_ENV: envalid.str({ choices: ['development', 'test', 'production'] }),
   WS_URL: envalid.url(),
   REDIS_CONNECTION_URL: envalid.url(),
+  TRAEFIK_PUBLIC_HOST: envalid.host(),
 });
 
 const envSchema = z.object({
