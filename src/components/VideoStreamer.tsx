@@ -4,12 +4,14 @@ import { useRouter } from 'next/router';
 import { Client, LocalStream } from 'ion-sdk-js';
 import { IonSFUJSONRPCSignal } from 'ion-sdk-js/lib/signal/json-rpc-impl';
 
+import { publicRuntimeConfig } from '~/utils/publicRuntimeConfig';
+
 export const VideoStreamer = () => {
   const router = useRouter();
   const videoElement = useRef<HTMLVideoElement>(null);
 
   const signalLocal = useMemo(
-    () => new IonSFUJSONRPCSignal('ws://localhost:7007/ws'),
+    () => new IonSFUJSONRPCSignal(publicRuntimeConfig.ION_SFU_URL),
     [],
   );
   const clientLocal = useMemo(

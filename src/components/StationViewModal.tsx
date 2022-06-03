@@ -6,6 +6,7 @@ import { Client } from 'ion-sdk-js';
 import { IonSFUJSONRPCSignal } from 'ion-sdk-js/lib/signal/json-rpc-impl';
 
 import { trpc } from '~/utils/trpc';
+import { publicRuntimeConfig } from '~/utils/publicRuntimeConfig';
 
 const ONE_MINUTE = 60;
 
@@ -14,15 +15,23 @@ export const StationViewModal = NiceModal.create(
     const modal = useModal();
     const utils = trpc.useContext();
     const [isVideoAvailable, setIsVideoAvailable] = useState(false);
+    const [isSignalReady, setIsSignalReady] = useState(false);
     const [timerText, setTimerText] = useState('-');
     const videoElement = useRef<HTMLVideoElement>(null);
 
     const { data: orderInfo } = trpc.useQuery(['order.info', { orderId }]);
 
     const signalLocal = useMemo(
-      () => new IonSFUJSONRPCSignal('ws://localhost:7007/ws'),
+      () => new IonSFUJSONRPCSignal(publicRuntimeConfig.ION_SFU_URL),
       [],
     );
+
+    useEffect(() => {
+      signalLocal.onopen = () => {
+        setIsSignalReady(true);
+      };
+    }, []);
+
     const clientLocal = useMemo(
       () =>
         new Client(signalLocal, {
@@ -50,16 +59,18 @@ export const StationViewModal = NiceModal.create(
     }, [videoElement.current]);
 
     useEffect(() => {
-      console.log(videoElement.current);
-      if (videoElement.current) {
+      console.log(videoElement.current, isSignalReady);
+      if (videoElement.current && isSignalReady) {
         clientLocal.join('test', Math.random().toString());
       }
       return () => {
-        console.log('leave');
-        clientLocal.leave();
-        signalLocal.close();
+        console.log('leave', isSignalReady);
+        if (isSignalReady) {
+          clientLocal.leave();
+          signalLocal.close();
+        }
       };
-    }, [videoElement, clientLocal, signalLocal]);
+    }, [videoElement, clientLocal, signalLocal, isSignalReady]);
 
     const updateTimerText = useCallback(() => {
       if (!orderInfo) return;
