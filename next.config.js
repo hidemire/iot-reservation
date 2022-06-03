@@ -37,5 +37,6 @@ module.exports = getConfig({
     APP_URL: env.APP_URL,
     WS_URL: env.WS_URL,
     TRAEFIK_PUBLIC_HOST: env.TRAEFIK_PUBLIC_HOST,
+    ION_SFU_URL: env.ION_SFU_URL,
   },
 });

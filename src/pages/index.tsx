@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import NiceModal from '@ebay/nice-modal-react';
 import type { StationStatus } from '@prisma/client';
@@ -8,8 +9,15 @@ import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
 import { ThemeChanger } from '~/components/ThemeChanger';
 import { StationBookModal } from '~/components/StationBookModal';
-import { StationViewModal } from '~/components/StationViewModal';
 import { Activity } from '~/components/Activity';
+
+const StationViewModal = dynamic(
+  async () => {
+    const m = await import('~/components/StationViewModal');
+    return m.StationViewModal;
+  },
+  { ssr: false },
+);
 
 const spotTextFormat = 'HH:mm';
 
@@ -73,7 +81,7 @@ const IndexPage: NextPageWithLayout = () => {
   };
 
   const showViewModal = (id: string) => {
-    NiceModal.show(StationViewModal, { orderId: id });
+    NiceModal.show(StationViewModal as FC<any>, { orderId: id });
   };
 
   return (

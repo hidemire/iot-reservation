@@ -1,6 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { differenceInSeconds } from 'date-fns';
 import NiceModal, { useModal } from '@ebay/nice-modal-react';
+
+import { Client } from 'ion-sdk-js';
+import { IonSFUJSONRPCSignal } from 'ion-sdk-js/lib/signal/json-rpc-impl';
 
 import { trpc } from '~/utils/trpc';
 
@@ -9,9 +12,54 @@ const ONE_MINUTE = 60;
 export const StationViewModal = NiceModal.create(
   ({ orderId }: { orderId: string }) => {
     const modal = useModal();
+    const utils = trpc.useContext();
+    const [isVideoAvailable, setIsVideoAvailable] = useState(false);
     const [timerText, setTimerText] = useState('-');
+    const videoElement = useRef<HTMLVideoElement>(null);
 
     const { data: orderInfo } = trpc.useQuery(['order.info', { orderId }]);
+
+    const signalLocal = useMemo(
+      () => new IonSFUJSONRPCSignal('ws://localhost:7007/ws'),
+      [],
+    );
+    const clientLocal = useMemo(
+      () =>
+        new Client(signalLocal, {
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+          codec: 'vp8',
+        }),
+      [signalLocal],
+    );
+
+    useEffect(() => {
+      if (videoElement.current) {
+        clientLocal.ontrack = (track, stream) => {
+          console.log('got track', track.id, 'for stream', stream.id);
+          track.onunmute = () => {
+            videoElement.current!.srcObject = stream;
+            videoElement.current!.autoplay = true;
+            setIsVideoAvailable(true);
+          };
+          stream.onremovetrack = () => {
+            videoElement.current!.srcObject = null;
+            setIsVideoAvailable(false);
+          };
+        };
+      }
+    }, [videoElement.current]);
+
+    useEffect(() => {
+      console.log(videoElement.current);
+      if (videoElement.current) {
+        clientLocal.join('test', Math.random().toString());
+      }
+      return () => {
+        console.log('leave');
+        clientLocal.leave();
+        signalLocal.close();
+      };
+    }, [videoElement, clientLocal, signalLocal]);
 
     const updateTimerText = useCallback(() => {
       if (!orderInfo) return;
@@ -19,7 +67,10 @@ export const StationViewModal = NiceModal.create(
         orderInfo.order.bookingEndAt,
         new Date(),
       );
-      if (diffInSeconds < 1) modal.remove();
+      if (diffInSeconds < 1) {
+        utils.invalidateQueries(['order.active']).then(() => modal.remove());
+        return;
+      }
       const minutes = Math.floor(diffInSeconds / ONE_MINUTE);
       const seconds = diffInSeconds - minutes * ONE_MINUTE;
 
@@ -114,26 +165,31 @@ export const StationViewModal = NiceModal.create(
                 {orderInfo?.station.description}
               </p>
             </div>
-            <div className="p-6 w-full flex flex-auto flex-col sm:flex-row overflow-auto justify-center items-center">
-              <div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-yellow-500 w-60 h-60 m-auto"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="0.7"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-                <div className="text-center font-semibold text-2xl text-gray-800 dark:text-gray-50">
-                  Video is temporarily unavailable
+            {!isVideoAvailable && (
+              <div className="p-6 w-full flex flex-auto flex-col sm:flex-row overflow-auto justify-center items-center">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-yellow-500 w-60 h-60 m-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="0.7"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <div className="text-center font-semibold text-2xl text-gray-800 dark:text-gray-50">
+                    Video is temporarily unavailable
+                  </div>
                 </div>
               </div>
+            )}
+            <div className={`${!isVideoAvailable && 'hidden'}`}>
+              <video ref={videoElement} className="bg-black h-full"></video>
             </div>
           </div>
         </div>
