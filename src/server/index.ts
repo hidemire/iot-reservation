@@ -10,6 +10,8 @@ import ws from 'ws';
 import { bootstrap } from '~/server/bootstrap';
 import { env } from '~/server/env';
 
+import nextConfig from '../../next.config';
+
 const port = parseInt(process.env.PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';
 
@@ -23,6 +25,7 @@ async function main() {
     dev,
     customServer: true,
     port,
+    conf: nextConfig,
   });
   const handle = app.getRequestHandler();
   await app.prepare();
