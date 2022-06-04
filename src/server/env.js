@@ -15,6 +15,7 @@ const env = envalid.cleanEnv(process.env, {
   REDIS_CONNECTION_URL: envalid.url(),
   TRAEFIK_PUBLIC_HOST: envalid.host(),
   ION_SFU_URL: envalid.url(),
+  NEXTAUTH_URL: envalid.url(),
 });
 
 const envSchema = z.object({

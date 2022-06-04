@@ -7,7 +7,7 @@ import { getDIContainer } from '~/server/bootstrap';
 
 const providers: AppProviders = [];
 
-const { EMAIL_DOMAINS_WHITELIST, GOOGLE_ID, GOOGLE_SECRET } =
+const { EMAIL_DOMAINS_WHITELIST, GOOGLE_ID, GOOGLE_SECRET, JWT_SECRET } =
   serverRuntimeConfig;
 
 providers.push(
@@ -18,9 +18,8 @@ providers.push(
 );
 
 export default NextAuth({
-  // Configure one or more authentication providers
   providers,
-  secret: 'process.env.JWT_SECRET',
+  secret: JWT_SECRET,
   callbacks: {
     async signIn({ profile }): Promise<string | boolean> {
       if (

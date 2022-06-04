@@ -30,6 +30,7 @@ module.exports = getConfig({
     GOOGLE_SECRET: env.GOOGLE_SECRET,
     JWT_SECRET: env.JWT_SECRET,
     REDIS_CONNECTION_URL: env.REDIS_CONNECTION_URL,
+    NEXTAUTH_URL: env.NEXTAUTH_URL,
   },
 
   publicRuntimeConfig: {
