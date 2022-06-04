@@ -60,8 +60,8 @@ export const StationViewModal = NiceModal.create(
 
     useEffect(() => {
       console.log(videoElement.current, isSignalReady);
-      if (videoElement.current && isSignalReady) {
-        clientLocal.join('test', Math.random().toString());
+      if (videoElement.current && isSignalReady && orderInfo) {
+        clientLocal.join(orderInfo.station.id, Math.random().toString());
       }
       return () => {
         console.log('leave', isSignalReady);
@@ -70,7 +70,7 @@ export const StationViewModal = NiceModal.create(
           signalLocal.close();
         }
       };
-    }, [videoElement, clientLocal, signalLocal, isSignalReady]);
+    }, [videoElement, clientLocal, signalLocal, isSignalReady, orderInfo]);
 
     const updateTimerText = useCallback(() => {
       if (!orderInfo) return;

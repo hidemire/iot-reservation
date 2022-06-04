@@ -39,7 +39,7 @@ export const VideoStreamer = () => {
   }, [videoElement.current]);
 
   const { id: stationId } = router.query;
-  if (!stationId)
+  if (!stationId || typeof stationId === 'object')
     return (
       <div>
         Station id must be provided <code>/station-video?id=123</code>
@@ -47,7 +47,7 @@ export const VideoStreamer = () => {
     );
 
   const startPublishVideo = () => {
-    clientLocal.join('test', Math.random().toString());
+    clientLocal.join(stationId, 'station');
     LocalStream.getUserMedia({
       resolution: 'fhd',
       audio: false,
@@ -66,7 +66,9 @@ export const VideoStreamer = () => {
   return (
     <div className="flex flex-col h-screen relative">
       <header className="flex h-16 justify-center items-center text-xl bg-gray-600 text-white">
-        <div onClick={() => clientLocal.join('test', Math.random().toString())}>
+        <div
+          onClick={() => clientLocal.join(stationId, Math.random().toString())}
+        >
           Station video streamer
         </div>
         <div className="absolute top-2 right-5">
