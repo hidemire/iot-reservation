@@ -3,14 +3,14 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react';
 import { DayPicker } from 'react-day-picker';
 import { format, isEqual, add, isSameDay } from 'date-fns';
 
-import { TimeSpot } from '~/types';
+import { StationsResponse, TimeSpot } from '~/types';
 import { trpc } from '~/utils/trpc';
 
 const spotTextFormat = 'HH:mm';
 const sessionDurationMin = 15;
 
 export const StationBookModal = NiceModal.create(
-  ({ stationId }: { stationId: string }) => {
+  ({ station }: { station: StationsResponse[0] }) => {
     const modal = useModal();
     const utils = trpc.useContext();
 
@@ -20,7 +20,7 @@ export const StationBookModal = NiceModal.create(
 
     const { data: weekTimeSpots } = trpc.useQuery([
       'station.time-spots',
-      { id: stationId },
+      { id: station.id },
     ]);
 
     const createOrder = trpc.useMutation('order.create', {
@@ -56,7 +56,7 @@ export const StationBookModal = NiceModal.create(
       if (selectedTimeSpot) {
         createOrder.mutate({
           startTime: selectedTimeSpot.startTime,
-          stationId,
+          stationId: station.id,
         });
       }
     };
@@ -92,7 +92,7 @@ export const StationBookModal = NiceModal.create(
                 </button>
               </div>
               <p className="mb-3 font-semibold text-2xl text-gray-800 dark:text-gray-50">
-                Станція №1
+                {station.name}
               </p>
               <div className="flex mb-3">
                 <svg
@@ -144,7 +144,7 @@ export const StationBookModal = NiceModal.create(
                 </div>
               )}
               <p className="font-semibold text-sm text-gray-700">
-                Опис станції
+                {station.description}
               </p>
             </div>
             {!isTImeSpotConfirmed && (

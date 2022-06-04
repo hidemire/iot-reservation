@@ -10,6 +10,7 @@ import { NextPageWithLayout } from '~/pages/_app';
 import { ThemeChanger } from '~/components/ThemeChanger';
 import { StationBookModal } from '~/components/StationBookModal';
 import { Activity } from '~/components/Activity';
+import { StationsResponse } from '~/types';
 
 const StationViewModal = dynamic(
   async () => {
@@ -76,8 +77,8 @@ const IndexPage: NextPageWithLayout = () => {
     },
   });
 
-  const showBookModal = (id: string) => {
-    NiceModal.show(StationBookModal, { stationId: id });
+  const showBookModal = (station: StationsResponse[0]) => {
+    NiceModal.show(StationBookModal, { station });
   };
 
   const showViewModal = (id: string) => {
@@ -407,7 +408,7 @@ const IndexPage: NextPageWithLayout = () => {
                         </td>
                         <td className="px-4 py-3 text-sm">
                           <button
-                            onClick={() => showBookModal(station.id)}
+                            onClick={() => showBookModal(station)}
                             disabled={station.status === 'INACTIVE'}
                             className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 dark:disabled:bg-gray-400 disabled:bg-gray-300 border border-r-0 border-blue-600 disabled:border-gray-300 dark:disabled:border-gray-400 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple"
                           >
