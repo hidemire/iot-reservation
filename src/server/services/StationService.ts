@@ -82,7 +82,7 @@ export class StationService {
         const { alive: stationIsReachable } = await ping.promise.probe(
           station.ip,
           {
-            timeout: 1,
+            timeout: 5,
           },
         );
 
