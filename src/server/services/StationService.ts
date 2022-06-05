@@ -96,10 +96,7 @@ export class StationService {
             data: { status: currentStatus },
           });
 
-          if (
-            ['ACTIVE', 'INACTIVE'].includes(currentStatus) ||
-            station.status === 'INACTIVE'
-          ) {
+          if (station.status === 'INACTIVE' || currentStatus === 'INACTIVE') {
             const activityType =
               currentStatus === 'INACTIVE' ? 'DISCONNECT' : 'CONNECT';
             await this.activityService.createActivity({
