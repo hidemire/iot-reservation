@@ -281,6 +281,7 @@ const IndexPage: NextPageWithLayout = () => {
                         <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                           Date
                         </th>
+                        <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -311,6 +312,13 @@ const IndexPage: NextPageWithLayout = () => {
                             {', '}
                             {format(order.bookingStartAt, 'EEEE, LLL dd, Y')}
                           </td>
+                          {isAfter(order.bookingStartAt, new Date()) && (
+                            <td>
+                              <button className="text-xs dark:text-red-300 text-red-500">
+                                Cancel
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
