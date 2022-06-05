@@ -48,7 +48,10 @@ export const bootstrap = async (config: typeof env) => {
     activityService: asClass(ActivityService).singleton(),
     stationService: asClass(StationService)
       .singleton()
-      .inject(() => ({ traefikPublicHost: config.TRAEFIK_PUBLIC_HOST })),
+      .inject(() => ({
+        traefikPublicHost: config.TRAEFIK_PUBLIC_HOST,
+        traefikEntryPoints: config.TRAEFIK_ENTRY_POINTS,
+      })),
   });
 
   await container.resolve('db').client.$connect();

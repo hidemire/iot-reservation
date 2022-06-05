@@ -12,6 +12,7 @@ type StationServiceConstructorParams = {
   redis: Redis;
   activityService: ActivityService;
   traefikPublicHost: string;
+  traefikEntryPoints: string[];
 };
 
 const TRAEFIK_TCP_ROUTERS_KEYS = {
@@ -30,6 +31,7 @@ export class StationService {
   redis;
   activityService;
   traefikPublicHost;
+  traefikEntryPoints;
 
   constructor({
     db,
@@ -37,12 +39,14 @@ export class StationService {
     redis,
     activityService,
     traefikPublicHost,
+    traefikEntryPoints,
   }: StationServiceConstructorParams) {
     this.db = db;
     this.bullMQ = bullMQ;
     this.redis = redis;
     this.activityService = activityService;
     this.traefikPublicHost = traefikPublicHost;
+    this.traefikEntryPoints = traefikEntryPoints;
   }
 
   async startStationsStatusCheck() {
@@ -114,7 +118,6 @@ export class StationService {
     const r = this.redis.connection;
     const prisma = this.db.client;
 
-    const traefikEntryPoints = ['5000', '5001', '5002'];
     const stationTraefikServices = new Map();
     (
       await r.keys('traefik/tcp/services/*/loadBalancer/servers/0/address')
@@ -152,7 +155,7 @@ export class StationService {
       usedEntryPointsKeys.map((key) => r.get(key)),
     );
 
-    const availableEntypoins = traefikEntryPoints.filter(
+    const availableEntypoins = this.traefikEntryPoints.filter(
       (entryPoint) => !usedEntryPointsNames.includes(entryPoint),
     );
 

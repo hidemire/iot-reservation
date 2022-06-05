@@ -16,10 +16,12 @@ const env = envalid.cleanEnv(process.env, {
   TRAEFIK_PUBLIC_HOST: envalid.host(),
   ION_SFU_URL: envalid.url(),
   NEXTAUTH_URL: envalid.url(),
+  TRAEFIK_ENTRY_POINTS: envalid.json(),
 });
 
 const envSchema = z.object({
   EMAIL_DOMAINS_WHITELIST: z.string().array().nonempty(),
+  TRAEFIK_ENTRY_POINTS: z.string().array().nonempty(),
 });
 
 const parseResult = envSchema.safeParse(env);
