@@ -4,12 +4,17 @@ import * as ping from 'ping';
 import { DIContainer } from '~/server/bootstrap';
 
 const TRAEFIK_TCP_ROUTERS_KEYS = {
-  ENTRYPOINTS: 'traefik/tcp/routers/$1/entrypoints/0',
-  RULE: 'traefik/tcp/routers/$1/rule',
-  SERVICE: 'traefik/tcp/routers/$1/service',
+  ENTRYPOINTS: 'traefik/tcp/routers/*/entrypoints/0',
+  RULE: 'traefik/tcp/routers/*/rule',
+  SERVICE: 'traefik/tcp/routers/*/service',
 };
 
-const STATION_ORDER_KEY = 'app/station/$1/current-order';
+const TRAEFIK_TCP_SERVICES_KEYS = {
+  LOAD_BALANCER_ADDRESS:
+    'traefik/tcp/services/*/loadBalancer/servers/0/address',
+};
+
+const STATION_ORDER_KEY = 'app/station/*/current-order';
 
 type TRAEFIK_TCP_ROUTERS_KEYS_TYPE = typeof TRAEFIK_TCP_ROUTERS_KEYS;
 
@@ -100,13 +105,13 @@ export class StationService {
     const r = this.redis.connection;
     const prisma = this.db.client;
 
-    const stationTraefikServices = new Map();
-    (
-      await r.keys('traefik/tcp/services/*/loadBalancer/servers/0/address')
-    ).forEach((key) => {
-      const stationId = key.match(/services\/(.*)\/loadBalancer/)![1];
-      stationTraefikServices.set(stationId, key);
-    });
+    const stationDevicesTraefikServices = new Map();
+    (await r.keys(TRAEFIK_TCP_SERVICES_KEYS.LOAD_BALANCER_ADDRESS)).forEach(
+      (key) => {
+        const deviceId = key.match(/services\/(.*)\/loadBalancer/)![1];
+        stationDevicesTraefikServices.set(deviceId, key);
+      },
+    );
 
     const today = new Date();
     const stations = await prisma.station.findMany({
@@ -117,81 +122,120 @@ export class StationService {
             bookingEndAt: { gt: today },
           },
         },
+        devices: true,
       },
     });
-    const stationsWithTraefikServiceConfig = stations.filter(({ id }) =>
-      stationTraefikServices.has(id),
-    );
-
-    if (stations.length != stationsWithTraefikServiceConfig.length) {
-      console.warn(
-        'The configuration of traefik services does not match the number of stations added',
-      );
-    }
 
     const usedEntryPointsKeys = await r.keys(
-      TRAEFIK_TCP_ROUTERS_KEYS.ENTRYPOINTS.replace('$1', '*'),
+      TRAEFIK_TCP_ROUTERS_KEYS.ENTRYPOINTS,
     );
 
     const usedEntryPointsNames = await Promise.all(
       usedEntryPointsKeys.map((key) => r.get(key)),
     );
 
-    const availableEntypoins = this.traefikEntryPoints.filter(
+    const availableEntryPoints = this.traefikEntryPoints.filter(
       (entryPoint) => !usedEntryPointsNames.includes(entryPoint),
     );
 
     await Promise.all(
-      stationsWithTraefikServiceConfig.map(async (station) => {
-        const stationConfigKeys = Object.fromEntries(
-          Object.entries(TRAEFIK_TCP_ROUTERS_KEYS).map(([key, traefikKey]) => [
-            key,
-            traefikKey.replace('$1', station.id),
-          ]),
-        ) as TRAEFIK_TCP_ROUTERS_KEYS_TYPE;
+      stations.map(async (station) => {
+        await Promise.all(
+          station.devices.map(async (device) => {
+            const hasConfig = stationDevicesTraefikServices.get(device.id);
+            if (!hasConfig) {
+              await r.set(
+                TRAEFIK_TCP_SERVICES_KEYS.LOAD_BALANCER_ADDRESS.replace(
+                  '*',
+                  device.id,
+                ),
+                `${station.ip}:${device.port}`,
+              );
+            } else {
+              stationDevicesTraefikServices.delete(device.id);
+            }
+          }),
+        );
+
+        const stationConfigKeys = new Map<
+          string,
+          TRAEFIK_TCP_ROUTERS_KEYS_TYPE
+        >();
+
+        station.devices.forEach((device) => {
+          const deviceConfigKeys = Object.fromEntries(
+            Object.entries(TRAEFIK_TCP_ROUTERS_KEYS).map(
+              ([key, traefikKey]) => [key, traefikKey.replace('*', device.id)],
+            ),
+          ) as TRAEFIK_TCP_ROUTERS_KEYS_TYPE;
+          stationConfigKeys.set(device.id, deviceConfigKeys);
+        });
 
         const currentStationOrderIdFromRedis = await r.get(
-          STATION_ORDER_KEY.replace('$1', station.id),
+          STATION_ORDER_KEY.replace('*', station.id),
         );
 
         if (station.status !== 'USED') {
-          const keys = Object.values(stationConfigKeys);
-          await r.del([...keys, STATION_ORDER_KEY.replace('$1', station.id)]);
+          const keys = Array.from(stationConfigKeys.values()).flatMap((keys) =>
+            Object.values(keys),
+          );
+          await r.del([...keys, STATION_ORDER_KEY.replace('*', station.id)]);
           return;
         }
-        const currentRouterConfig = await r.keys(
-          `traefik/tcp/routers/${station.id}/*`,
-        );
 
         if (
-          currentRouterConfig.length ===
-            Object.keys(stationConfigKeys).length &&
-          currentStationOrderIdFromRedis === station.orders[0]!.id
+          !station.orders[0] ||
+          currentStationOrderIdFromRedis === station.orders[0].id
         ) {
           return;
         }
 
         await r.set(
           `app/station/${station.id}/current-order`,
-          station.orders[0]!.id,
+          station.orders[0].id,
         );
 
-        if (availableEntypoins.length) {
-          const config = {
-            [stationConfigKeys.ENTRYPOINTS]: availableEntypoins.pop()!,
-            [stationConfigKeys.RULE]: 'HostSNI(`*`)',
-            [stationConfigKeys.SERVICE]: station.id,
-          };
-          console.log(`Update station config: ${station.name}`, config);
+        const devicesConfig = new Map<string, string>();
 
-          await Promise.all(
-            Object.entries(config).map(([key, value]) => r.set(key, value)),
+        try {
+          station.devices.forEach((device) => {
+            const deviceConfigKeys = stationConfigKeys.get(device.id);
+            if (!deviceConfigKeys) {
+              throw new Error(
+                `missed device ${device.id} in the stationConfigKeys ${station.id}`,
+              );
+            }
+            const entryPoint = availableEntryPoints.pop();
+            if (!entryPoint) {
+              throw new Error(
+                `there are not free entry point for device ${device.id}`,
+              );
+            }
+            devicesConfig.set(deviceConfigKeys.ENTRYPOINTS, entryPoint);
+            devicesConfig.set(deviceConfigKeys.RULE, 'HostSNI(`*`)');
+            devicesConfig.set(deviceConfigKeys.SERVICE, device.id);
+          });
+
+          console.log(`Update station config: ${station.name}`, devicesConfig);
+
+          const rSetPromises = Array.from(devicesConfig.entries()).map(
+            ([key, value]) => r.set(key, value),
           );
-        } else {
+          await Promise.all(rSetPromises);
+        } catch (error) {
           // update order status
+          console.error('Station config update error', error);
         }
       }),
     );
+
+    if (stationDevicesTraefikServices.size) {
+      console.log(
+        'Found extra device configurations. Deleting...',
+        stationDevicesTraefikServices,
+      );
+      await r.del(Array.from(stationDevicesTraefikServices.values()));
+    }
   }
 
   async getStationConnectionConfig(stationId: string) {
@@ -199,22 +243,28 @@ export class StationService {
     const prisma = this.db.client;
     const station = await prisma.station.findUnique({
       where: { id: stationId },
+      include: { devices: true },
     });
 
     if (!station) {
       throw new Error('station not found');
     }
 
-    const stationConfigKeys = Object.fromEntries(
-      Object.entries(TRAEFIK_TCP_ROUTERS_KEYS).map(([key, traefikKey]) => [
-        key,
-        traefikKey.replace('$1', station.id),
-      ]),
-    ) as TRAEFIK_TCP_ROUTERS_KEYS_TYPE;
+    const devicesConfig = await Promise.all(
+      station.devices.map(async (device) => {
+        const entryPoint = await r.get(
+          TRAEFIK_TCP_ROUTERS_KEYS.ENTRYPOINTS.replace('*', device.id),
+        );
 
-    const entrypoint = await r.get(stationConfigKeys.ENTRYPOINTS);
-    if (!entrypoint) return [];
+        return {
+          port: entryPoint,
+          host: this.traefikPublicHost,
+          deviceName: device.name,
+          deviceId: device.id,
+        };
+      }),
+    );
 
-    return [{ port: parseInt(entrypoint, 10), host: this.traefikPublicHost }];
+    return devicesConfig;
   }
 }

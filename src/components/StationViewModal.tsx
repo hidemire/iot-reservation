@@ -150,29 +150,46 @@ export const StationViewModal = NiceModal.create(
                 </p>
               </div>
               {orderInfo?.station.connectionConfig.map(
-                ({ host, port }, index) => (
-                  <div key={index} className="flex mb-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 mr-2 dark:text-gray-50"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
+                ({ host, port, deviceId, deviceName }) => (
+                  <div key={deviceId} className="mb-3">
+                    <p
+                      className={`font-semibold text-sm  ${
+                        port
+                          ? 'text-gray-800 dark:text-gray-50'
+                          : 'text-red-500 dark:text-red-500'
+                      }`}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"
-                      />
-                    </svg>
-                    <p className="font-semibold text-gray-800 dark:text-gray-50">
-                      {host}:{port}
+                      {deviceName}
                     </p>
+                    <div
+                      className={`flex ${
+                        port
+                          ? 'text-gray-800 dark:text-gray-50'
+                          : 'text-red-500 dark:text-red-500'
+                      }`}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 mr-2 "
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"
+                        />
+                      </svg>
+                      <p className="font-semibold ">
+                        {port ? `${host}:${port}` : 'Connection...'}
+                      </p>
+                    </div>
                   </div>
                 ),
               )}
-              <p className="font-semibold text-sm text-white">
+              <p className="font-semibold text-sm text-gray-800 dark:text-gray-50">
                 {orderInfo?.station.description}
               </p>
             </div>
