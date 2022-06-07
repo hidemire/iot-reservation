@@ -1,14 +1,12 @@
 import IORedis from 'ioredis';
 
-type RedisConstructorParams = {
-  redisConnectionUrl: string;
-};
+import { DIContainer } from '~/server/bootstrap';
 
 export class Redis {
   connection;
 
-  constructor({ redisConnectionUrl }: RedisConstructorParams) {
-    this.connection = new IORedis(redisConnectionUrl, {
+  constructor({ config }: DIContainer) {
+    this.connection = new IORedis(config.REDIS_CONNECTION_URL, {
       maxRetriesPerRequest: null,
       retryStrategy(times) {
         const delay = Math.min(times * 50, 2000);

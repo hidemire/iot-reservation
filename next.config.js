@@ -39,5 +39,6 @@ module.exports = getConfig({
     WS_URL: env.WS_URL,
     TRAEFIK_PUBLIC_HOST: env.TRAEFIK_PUBLIC_HOST,
     ION_SFU_URL: env.ION_SFU_URL,
+    SESSION_DURATION_MIN: env.SESSION_DURATION_MIN,
   },
 });

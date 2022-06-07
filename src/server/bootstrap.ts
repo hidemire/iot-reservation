@@ -1,6 +1,4 @@
-import { asClass, AwilixContainer, createContainer } from 'awilix';
-
-import type { env } from '~/server/env';
+import { asClass, asValue, AwilixContainer, createContainer } from 'awilix';
 
 import { Redis } from '~/server/lib/redis';
 import { BullMQ } from '~/server/lib/bullmq';
@@ -9,37 +7,35 @@ import { DB } from '~/server/db';
 import { ActivityService } from '~/server/services/ActivityService';
 import { StationService } from '~/server/services/StationService';
 import { OrderService } from '~/server/services/OrderService';
+import { Config } from '~/types';
 
-type DIContainer = {
+export type DIContainer = {
   db: DB;
   redis: Redis;
   bullMQ: BullMQ;
   activityService: ActivityService;
   stationService: StationService;
   orderService: OrderService;
+  config: Config;
 };
 
 const bootstrapGlobal = global as typeof global & {
   container?: AwilixContainer<DIContainer>;
 };
 
-export const bootstrap = async (config: typeof env) => {
+export const bootstrap = async (config: Config) => {
   if (bootstrapGlobal.container) return;
 
   const container = createContainer<DIContainer>().register({
+    config: asValue(config),
     db: asClass(DB)
       .singleton()
-      .inject(() => ({ nodeEnv: config.NODE_ENV }))
       .disposer((db) => db.client.$disconnect()),
     redis: asClass(Redis)
       .singleton()
-      .inject(() => ({ redisConnectionUrl: config.REDIS_CONNECTION_URL }))
       .disposer((redis) => redis.connection.quit()),
     bullMQ: asClass(BullMQ)
       .singleton()
-      .inject((c) => ({
-        connection: c.resolve<Redis>('redis').connection,
-      }))
       .disposer((bullMQ) =>
         Promise.allSettled([
           bullMQ.repeatableQueue.close(),
@@ -48,15 +44,8 @@ export const bootstrap = async (config: typeof env) => {
       ),
     // Services
     activityService: asClass(ActivityService).singleton(),
-    stationService: asClass(StationService)
-      .singleton()
-      .inject(() => ({
-        traefikPublicHost: config.TRAEFIK_PUBLIC_HOST,
-        traefikEntryPoints: config.TRAEFIK_ENTRY_POINTS,
-      })),
-    orderService: asClass(OrderService)
-      .singleton()
-      .inject(() => ({ sessionDurationMin: 15 })),
+    stationService: asClass(StationService).singleton(),
+    orderService: asClass(OrderService).singleton(),
   });
 
   await container.resolve('db').client.$connect();

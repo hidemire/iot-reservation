@@ -1,19 +1,13 @@
 import { MyEmitter } from '~/utils/MyEmitter';
 
-import type { DB } from '~/server/db';
-import type { Redis } from '~/server/lib/redis';
-
-type ActivityServiceConstructorParams = {
-  db: DB;
-  redis: Redis;
-};
+import { DIContainer } from '~/server/bootstrap';
 
 export class ActivityService extends MyEmitter<{ 'create-activity': null }> {
   db;
   redisPublisher;
   redisSubscriber;
 
-  constructor({ db, redis }: ActivityServiceConstructorParams) {
+  constructor({ db, redis }: DIContainer) {
     super();
     this.db = db;
 

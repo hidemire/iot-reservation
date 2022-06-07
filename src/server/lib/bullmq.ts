@@ -1,17 +1,15 @@
 import { Queue, QueueScheduler, Worker, Job } from 'bullmq';
-import type IORedis from 'ioredis';
 
 import { MyEmitter } from '~/utils/MyEmitter';
+import { DIContainer } from '~/server/bootstrap';
 
-type BullMQConstructorParams = {
-  connection: IORedis;
-};
 export class BullMQ extends MyEmitter<{ repeatable: Job }> {
   repeatableQueue;
   repeatableWorker;
 
-  constructor({ connection }: BullMQConstructorParams) {
+  constructor({ redis }: DIContainer) {
     super();
+    const connection = redis.connection;
     new QueueScheduler('repeatable', { connection });
     this.repeatableQueue = new Queue('repeatable', {
       connection,

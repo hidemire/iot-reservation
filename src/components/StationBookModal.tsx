@@ -5,9 +5,10 @@ import { format, isEqual, add, isSameDay } from 'date-fns';
 
 import { StationsResponse, TimeSpot } from '~/types';
 import { trpc } from '~/utils/trpc';
+import { publicRuntimeConfig } from '~/utils/publicRuntimeConfig';
 
 const spotTextFormat = 'HH:mm';
-const sessionDurationMin = 15;
+const { SESSION_DURATION_MIN: sessionDurationMin } = publicRuntimeConfig;
 
 export const StationBookModal = NiceModal.create(
   ({ station }: { station: StationsResponse[0] }) => {

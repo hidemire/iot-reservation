@@ -17,6 +17,7 @@ const env = envalid.cleanEnv(process.env, {
   ION_SFU_URL: envalid.url(),
   NEXTAUTH_URL: envalid.url(),
   TRAEFIK_ENTRY_POINTS: envalid.json(),
+  SESSION_DURATION_MIN: envalid.num(),
 });
 
 const envSchema = z.object({

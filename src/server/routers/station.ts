@@ -50,8 +50,11 @@ export const stationRouter = createProtectedRouter()
       id: z.string().uuid(),
     }),
     async resolve({ ctx, input }) {
-      const prisma = ctx.scope.resolve('db').client;
+      const { scope } = ctx;
       const { id } = input;
+      const prisma = scope.resolve('db').client;
+      const { SESSION_DURATION_MIN: sessionDurationMin } =
+        scope.resolve('config');
 
       const today = startOfDay(new Date());
 
@@ -74,7 +77,6 @@ export const stationRouter = createProtectedRouter()
       }
 
       const timeSpots: TimeSpot[] = [];
-      const sessionDurationMin = 15;
 
       for (let days = 0; days < 7; days++) {
         let date = add(today, { days });

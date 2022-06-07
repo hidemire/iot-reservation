@@ -1,19 +1,7 @@
 import { StationStatus } from '@prisma/client';
 import * as ping from 'ping';
 
-import type { DB } from '~/server/db';
-import type { BullMQ } from '~/server/lib/bullmq';
-import type { Redis } from '~/server/lib/redis';
-import type { ActivityService } from '~/server/services/ActivityService';
-
-type StationServiceConstructorParams = {
-  db: DB;
-  bullMQ: BullMQ;
-  redis: Redis;
-  activityService: ActivityService;
-  traefikPublicHost: string;
-  traefikEntryPoints: string[];
-};
+import { DIContainer } from '~/server/bootstrap';
 
 const TRAEFIK_TCP_ROUTERS_KEYS = {
   ENTRYPOINTS: 'traefik/tcp/routers/$1/entrypoints/0',
@@ -33,20 +21,13 @@ export class StationService {
   traefikPublicHost;
   traefikEntryPoints;
 
-  constructor({
-    db,
-    bullMQ,
-    redis,
-    activityService,
-    traefikPublicHost,
-    traefikEntryPoints,
-  }: StationServiceConstructorParams) {
+  constructor({ db, bullMQ, redis, activityService, config }: DIContainer) {
     this.db = db;
     this.bullMQ = bullMQ;
     this.redis = redis;
     this.activityService = activityService;
-    this.traefikPublicHost = traefikPublicHost;
-    this.traefikEntryPoints = traefikEntryPoints;
+    this.traefikPublicHost = config.TRAEFIK_PUBLIC_HOST;
+    this.traefikEntryPoints = config.TRAEFIK_ENTRY_POINTS;
   }
 
   async startStationsStatusCheck() {

@@ -1,28 +1,17 @@
 import { TRPCError } from '@trpc/server';
 import { add, isBefore, sub } from 'date-fns';
 
-import type { DB } from '~/server/db';
-import type { StationService } from '~/server/services/StationService';
-
-type OrderServiceConstructorParams = {
-  db: DB;
-  stationService: StationService;
-  sessionDurationMin: number;
-};
+import { DIContainer } from '~/server/bootstrap';
 
 export class OrderService {
   db;
   stationService;
   sessionDurationMin;
 
-  constructor({
-    db,
-    stationService,
-    sessionDurationMin,
-  }: OrderServiceConstructorParams) {
+  constructor({ db, stationService, config }: DIContainer) {
     this.db = db;
     this.stationService = stationService;
-    this.sessionDurationMin = sessionDurationMin;
+    this.sessionDurationMin = config.SESSION_DURATION_MIN;
   }
 
   async getActiveOrders({ userId }: { userId?: string }) {

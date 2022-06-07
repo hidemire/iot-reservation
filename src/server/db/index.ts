@@ -1,14 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 
-type DBConstructorParams = {
-  nodeEnv: string;
-};
+import { DIContainer } from '~/server/bootstrap';
+
 export class DB {
   client: PrismaClient;
 
-  constructor({ nodeEnv }: DBConstructorParams) {
+  constructor({ config }: DIContainer) {
     this.client = new PrismaClient({
-      log: nodeEnv === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      log:
+        config.NODE_ENV === 'development'
+          ? ['query', 'error', 'warn']
+          : ['error'],
     });
   }
 }

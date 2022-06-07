@@ -1,4 +1,5 @@
 import { inferQueryOutput } from '~/utils/trpc';
+import type { env } from '~/server/env';
 
 export type ValueOf<T> = T[keyof T];
 
@@ -8,3 +9,5 @@ export type TimeSpot = {
 };
 
 export type StationsResponse = inferQueryOutput<'station.all'>;
+
+export type Config = typeof env;
