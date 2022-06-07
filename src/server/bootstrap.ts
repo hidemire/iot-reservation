@@ -8,6 +8,7 @@ import { DB } from '~/server/db';
 
 import { ActivityService } from '~/server/services/ActivityService';
 import { StationService } from '~/server/services/StationService';
+import { OrderService } from '~/server/services/OrderService';
 
 type DIContainer = {
   db: DB;
@@ -15,6 +16,7 @@ type DIContainer = {
   bullMQ: BullMQ;
   activityService: ActivityService;
   stationService: StationService;
+  orderService: OrderService;
 };
 
 const bootstrapGlobal = global as typeof global & {
@@ -52,6 +54,9 @@ export const bootstrap = async (config: typeof env) => {
         traefikPublicHost: config.TRAEFIK_PUBLIC_HOST,
         traefikEntryPoints: config.TRAEFIK_ENTRY_POINTS,
       })),
+    orderService: asClass(OrderService)
+      .singleton()
+      .inject(() => ({ sessionDurationMin: 15 })),
   });
 
   await container.resolve('db').client.$connect();
