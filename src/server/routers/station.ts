@@ -27,6 +27,7 @@ export const stationRouter = createProtectedRouter()
                 gte: today,
                 lt: endDay,
               },
+              status: 'ACTIVE',
             },
             select: {
               id: true,
@@ -62,6 +63,7 @@ export const stationRouter = createProtectedRouter()
               bookingStartAt: {
                 gte: today,
               },
+              status: 'ACTIVE',
             },
           },
         },

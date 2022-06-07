@@ -28,7 +28,8 @@ export const StationBookModal = NiceModal.create(
         modal.resolve({ selectedDay, selectedTimeSpot });
         modal.remove();
       },
-      async onError() {
+      async onError(error) {
+        alert(error.message);
         setSelectedDay(new Date());
         setSelectedTimeSpot(undefined);
         setIsTimeSpotConfirmed(false);

@@ -70,6 +70,16 @@ const IndexPage: NextPageWithLayout = () => {
     ...refreshParams,
   });
 
+  const declineOrder = trpc.useMutation('order.decline', {
+    async onSuccess() {
+      await utils.invalidateQueries('order.active');
+      await utils.invalidateQueries('station.all');
+    },
+    onError(error) {
+      alert(error.message);
+    },
+  });
+
   trpc.useSubscription(['activity.onCreated'], {
     async onNext() {
       await utils.invalidateQueries('station.all');
@@ -83,6 +93,10 @@ const IndexPage: NextPageWithLayout = () => {
 
   const showViewModal = (id: string) => {
     NiceModal.show(StationViewModal as FC<any>, { orderId: id });
+  };
+
+  const onDeclineOrder = (orderId: string) => {
+    declineOrder.mutate({ orderId });
   };
 
   return (
@@ -314,7 +328,10 @@ const IndexPage: NextPageWithLayout = () => {
                           </td>
                           {isAfter(order.bookingStartAt, new Date()) && (
                             <td>
-                              <button className="text-xs dark:text-red-300 text-red-500">
+                              <button
+                                onClick={() => onDeclineOrder(order.id)}
+                                className="text-xs dark:text-red-300 text-red-500"
+                              >
                                 Cancel
                               </button>
                             </td>

@@ -72,6 +72,7 @@ export class StationService {
           where: {
             bookingStartAt: { lte: today },
             bookingEndAt: { gt: today },
+            status: 'ACTIVE',
           },
         },
       },

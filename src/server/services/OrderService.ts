@@ -101,6 +101,7 @@ export class OrderService {
           stationId,
           bookingStartAt: { lte: startTime },
           bookingEndAt: { gt: startTime },
+          status: 'ACTIVE',
         },
       });
       if (stationOrders.length) {
