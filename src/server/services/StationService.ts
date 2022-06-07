@@ -142,18 +142,14 @@ export class StationService {
       stations.map(async (station) => {
         await Promise.all(
           station.devices.map(async (device) => {
-            const hasConfig = stationDevicesTraefikServices.get(device.id);
-            if (!hasConfig) {
-              await r.set(
-                TRAEFIK_TCP_SERVICES_KEYS.LOAD_BALANCER_ADDRESS.replace(
-                  '*',
-                  device.id,
-                ),
-                `${station.ip}:${device.port}`,
-              );
-            } else {
-              stationDevicesTraefikServices.delete(device.id);
-            }
+            await r.set(
+              TRAEFIK_TCP_SERVICES_KEYS.LOAD_BALANCER_ADDRESS.replace(
+                '*',
+                device.id,
+              ),
+              `${station.ip}:${device.port}`,
+            );
+            stationDevicesTraefikServices.delete(device.id);
           }),
         );
 
