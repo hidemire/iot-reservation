@@ -12,6 +12,8 @@ import { StationBookModal } from '~/components/StationBookModal';
 import { Activity } from '~/components/Activity';
 import { StationsResponse } from '~/types';
 
+const JoyRideNoSSR = dynamic(() => import('react-joyride'), { ssr: false });
+
 const StationViewModal = dynamic(
   async () => {
     const m = await import('~/components/StationViewModal');
@@ -44,10 +46,20 @@ const refreshParams = {
   refetchIntervalInBackground: true,
 };
 
+const steps = [
+  {
+    target: '.help-button',
+    disableBeacon: true,
+    content:
+      'It looks like this is the first time you have accessed the site from this device. You might want to take a look at this tip',
+  },
+];
+
 const IndexPage: NextPageWithLayout = () => {
   const utils = trpc.useContext();
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
+  const [tourRun, setTourRun] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -57,6 +69,16 @@ const IndexPage: NextPageWithLayout = () => {
     if (mounted) signIn('google');
     return <></>;
   }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (mounted) {
+      if (!localStorage.getItem('first-login')) {
+        localStorage.setItem('first-login', 'true');
+        setTourRun(true);
+      }
+    }
+  }, [mounted]);
 
   const { data: stations } = trpc.useQuery(['station.all'], {
     ...refreshParams,
@@ -101,6 +123,7 @@ const IndexPage: NextPageWithLayout = () => {
 
   return (
     <>
+      <JoyRideNoSSR run={tourRun} steps={steps} />
       <div className="min-h-screen flex flex-col flex-auto flex-shrink-0 antialiased bg-white dark:bg-gray-700 text-black dark:text-white">
         {/* Header */}
         <div className="fixed w-full flex items-center justify-between h-14 text-white z-10">
@@ -150,7 +173,7 @@ const IndexPage: NextPageWithLayout = () => {
                       '_blank',
                     )
                   }
-                  className="group p-2 transition-colors duration-200 rounded-full shadow-md bg-blue-200 hover:bg-blue-200 dark:bg-gray-50 dark:hover:bg-gray-200 text-gray-900 focus:outline-none"
+                  className="help-button group p-2 transition-colors duration-200 rounded-full shadow-md bg-blue-200 hover:bg-blue-200 dark:bg-gray-50 dark:hover:bg-gray-200 text-gray-900 focus:outline-none"
                 >
                   <svg
                     width="24px"
