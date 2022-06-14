@@ -60,7 +60,7 @@ export const ThemeChanger = () => {
   return (
     <button
       aria-hidden="true"
-      className="mx-3 group p-2 transition-colors duration-200 rounded-full shadow-md bg-blue-200 hover:bg-blue-200 dark:bg-gray-50 dark:hover:bg-gray-200 text-gray-900 focus:outline-none"
+      className="group p-2 transition-colors duration-200 rounded-full shadow-md bg-blue-200 hover:bg-blue-200 dark:bg-gray-50 dark:hover:bg-gray-200 text-gray-900 focus:outline-none"
     >
       {renderThemeChanger()}
     </button>

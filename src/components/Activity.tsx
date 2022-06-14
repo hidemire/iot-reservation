@@ -1,11 +1,12 @@
 import React from 'react';
 
 import { ValueOf } from '~/types';
+import { I18NKey, i18n } from '~/utils/i18n';
 import { inferQueryOutput } from '~/utils/trpc';
 
 type Activity = ValueOf<inferQueryOutput<'activity.all'>>[0];
 
-const orderActivity = (activity: Activity) => {
+const orderActivity = (activity: Activity, localeKey: I18NKey) => {
   return (
     <>
       <div className="w-9 h-9 rounded-full flex-shrink-0 bg-indigo-500 my-2 mr-3">
@@ -26,7 +27,7 @@ const orderActivity = (activity: Activity) => {
             >
               {activity.user?.email.split('@')[0]}
             </a>{' '}
-            booked station{' '}
+            {i18n[localeKey].activities.booked}{' '}
             <a
               className="out font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
               href="#0"
@@ -41,7 +42,7 @@ const orderActivity = (activity: Activity) => {
   );
 };
 
-const connectActivity = (activity: Activity) => {
+const connectActivity = (activity: Activity, localeKey: I18NKey) => {
   return (
     <>
       <div className="w-9 h-9 rounded-full flex-shrink-0 bg-green-500 my-2 mr-3">
@@ -52,7 +53,7 @@ const connectActivity = (activity: Activity) => {
       <div className="flex-grow flex items-center border-gray-100 text-sm text-gray-600 dark:text-gray-50 py-2">
         <div className="flex-grow flex justify-between items-center">
           <div className="self-center">
-            The connection to the station has been restored{' '}
+            {i18n[localeKey].activities.connectionRestored}{' '}
             <a
               className="font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
               href="#0"
@@ -67,7 +68,7 @@ const connectActivity = (activity: Activity) => {
   );
 };
 
-const disconnectActivity = (activity: Activity) => {
+const disconnectActivity = (activity: Activity, localeKey: I18NKey) => {
   return (
     <>
       <div className="w-9 h-9 rounded-full flex-shrink-0 bg-red-500 my-2 mr-3">
@@ -78,7 +79,7 @@ const disconnectActivity = (activity: Activity) => {
       <div className="flex-grow flex items-center border-gray-100 text-sm text-gray-600 dark:text-gray-50 py-2">
         <div className="flex-grow flex justify-between items-center">
           <div className="self-center">
-            Loss of connection to the station{' '}
+            {i18n[localeKey].activities.lostConnection}{' '}
             <a
               className="font-medium text-gray-800 dark:text-gray-50 dark:hover:text-gray-100"
               href="#0"
@@ -93,14 +94,17 @@ const disconnectActivity = (activity: Activity) => {
   );
 };
 
-export const Activity: React.FC<{ activity: Activity }> = ({ activity }) => {
+export const Activity: React.FC<{ activity: Activity; localeKey: I18NKey }> = ({
+  activity,
+  localeKey,
+}) => {
   switch (activity.type) {
     case 'ORDER':
-      return orderActivity(activity);
+      return orderActivity(activity, localeKey);
     case 'CONNECT':
-      return connectActivity(activity);
+      return connectActivity(activity, localeKey);
     case 'DISCONNECT':
-      return disconnectActivity(activity);
+      return disconnectActivity(activity, localeKey);
     default:
       return <div></div>;
   }

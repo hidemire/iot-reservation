@@ -7,11 +7,12 @@ import { IonSFUJSONRPCSignal } from 'ion-sdk-js/lib/signal/json-rpc-impl';
 
 import { trpc } from '~/utils/trpc';
 import { publicRuntimeConfig } from '~/utils/publicRuntimeConfig';
+import { i18n, I18NKey } from '~/utils/i18n';
 
 const ONE_MINUTE = 60;
 
 export const StationViewModal = NiceModal.create(
-  ({ orderId }: { orderId: string }) => {
+  ({ orderId, localeKey }: { orderId: string; localeKey: I18NKey }) => {
     const modal = useModal();
     const utils = trpc.useContext();
     const [isVideoAvailable, setIsVideoAvailable] = useState(false);
@@ -211,7 +212,7 @@ export const StationViewModal = NiceModal.create(
                     />
                   </svg>
                   <div className="text-center font-semibold text-2xl text-gray-800 dark:text-gray-50">
-                    Video is temporarily unavailable
+                    {i18n[localeKey].unavailableVideoWarning}
                   </div>
                 </div>
               </div>

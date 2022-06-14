@@ -1,0 +1,66 @@
+export const i18n = {
+  en: {
+    logOut: 'Logout',
+    main: 'Main',
+    dashboard: 'Dashboard',
+    bookedStations: 'Booked Stations',
+    station: 'Station',
+    date: 'Date',
+    cancel: 'Cancel',
+    lastActivity: 'Last Activity',
+    queue: 'Queue',
+    status: 'Status',
+    book: 'Book',
+    stations: 'Stations',
+    of: 'of',
+    search: 'Search',
+    activities: {
+      booked: 'booked station',
+      connectionRestored: 'The connection to the station has been restored',
+      lostConnection: 'Loss of connection to the station',
+    },
+    time: {
+      min: 'min',
+    },
+    confirm: 'confirm',
+    stationsStatuses: {
+      available: 'available',
+      unavailable: 'unavailable',
+      used: 'used',
+    },
+    unavailableVideoWarning: 'Video is temporarily unavailable',
+  },
+  uk: {
+    logOut: 'Вийти',
+    main: 'Основне',
+    dashboard: 'Головна',
+    bookedStations: 'Заброньовані Станції',
+    station: 'Станція',
+    date: 'Дата',
+    cancel: 'Відхилити',
+    lastActivity: 'Остання Активність',
+    queue: 'Черга',
+    status: 'Статус',
+    book: 'Забронювати',
+    stations: 'Станції',
+    of: 'з',
+    search: 'Пошук',
+    activities: {
+      booked: 'заброньовано станцію',
+      connectionRestored: "З'єднання із станцію відновлено",
+      lostConnection: "Втрата з'єднання зі станцією",
+    },
+    time: {
+      min: 'хв',
+    },
+    confirm: 'підтвердити',
+    stationsStatuses: {
+      available: 'активна',
+      unavailable: 'неактивна',
+      used: 'використовується',
+    },
+    unavailableVideoWarning: 'Відео тимчасово недоступне',
+  },
+};
+
+export type I18NKey = keyof typeof i18n;

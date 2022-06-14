@@ -6,18 +6,28 @@ import { format, isEqual, add, isSameDay } from 'date-fns';
 import { StationsResponse, TimeSpot } from '~/types';
 import { trpc } from '~/utils/trpc';
 import { publicRuntimeConfig } from '~/utils/publicRuntimeConfig';
+import { i18n, I18NKey } from '~/utils/i18n';
+import { formatLocale, getLocale } from '~/utils/date';
 
 const spotTextFormat = 'HH:mm';
 const { SESSION_DURATION_MIN: sessionDurationMin } = publicRuntimeConfig;
 
 export const StationBookModal = NiceModal.create(
-  ({ station }: { station: StationsResponse[0] }) => {
+  ({
+    station,
+    localeKey,
+  }: {
+    station: StationsResponse[0];
+    localeKey: I18NKey;
+  }) => {
     const modal = useModal();
     const utils = trpc.useContext();
 
     const [isTImeSpotConfirmed, setIsTimeSpotConfirmed] = useState(false);
     const [selectedDay, setSelectedDay] = useState(new Date());
     const [selectedTimeSpot, setSelectedTimeSpot] = useState<TimeSpot>();
+
+    const locale = i18n[localeKey];
 
     const { data: weekTimeSpots } = trpc.useQuery([
       'station.time-spots',
@@ -112,7 +122,7 @@ export const StationBookModal = NiceModal.create(
                   />
                 </svg>
                 <p className="font-semibold text-gray-800 dark:text-gray-50">
-                  {sessionDurationMin} min
+                  {sessionDurationMin} {locale.time.min}
                 </p>
               </div>
               {isTImeSpotConfirmed && (
@@ -141,7 +151,7 @@ export const StationBookModal = NiceModal.create(
                       spotTextFormat,
                     )}
                     {', '}
-                    {format(selectedDay, 'EEEE, LLL dd, Y')}
+                    {formatLocale(selectedDay, 'EEEE, LLL dd, Y', localeKey)}
                   </p>
                 </div>
               )}
@@ -156,6 +166,7 @@ export const StationBookModal = NiceModal.create(
                     className="book-date-picker"
                     mode="single"
                     selected={selectedDay}
+                    locale={getLocale(localeKey)}
                     onSelect={(day) => day && onSelectDay(day)}
                     // disabled={[{ before: today }, { after: weekAfter }]}
                     disabled={(day) =>
@@ -167,7 +178,7 @@ export const StationBookModal = NiceModal.create(
                 </div>
                 <div className="flex flex-col w-full overflow-auto sm:max-w-[270px] sm:basis-1/3 no-scrollbar">
                   <p className="mb-3 dark:text-gray-50">
-                    {format(selectedDay, 'PPP')}
+                    {formatLocale(selectedDay, 'PPP', localeKey)}
                   </p>
                   {timeSpots?.map((timeSpot) =>
                     isEqual(
@@ -188,7 +199,7 @@ export const StationBookModal = NiceModal.create(
                           onClick={() => setIsTimeSpotConfirmed(true)}
                           className="basis-[48%] text-white font-bold border p-3 rounded-md bg-blue-500 border-blue-500"
                         >
-                          confirm
+                          {locale.confirm}
                         </button>
                       </div>
                     ) : (
@@ -234,7 +245,7 @@ export const StationBookModal = NiceModal.create(
                     disabled={createOrder.isLoading}
                     className="h-12 border rounded-md text-white bg-blue-500 font-bold border-blue-500 dark:disabled:bg-gray-400 disabled:bg-gray-300 disabled:border-gray-300 dark:disabled:border-gray-400"
                   >
-                    confirm
+                    {locale.confirm}
                   </button>
                 </div>
               </div>

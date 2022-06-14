@@ -7,10 +7,14 @@ import { add, format, isAfter } from 'date-fns';
 
 import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
+import { LocaleChanger } from '~/components/LocaleChanger';
 import { ThemeChanger } from '~/components/ThemeChanger';
 import { StationBookModal } from '~/components/StationBookModal';
 import { Activity } from '~/components/Activity';
 import { StationsResponse } from '~/types';
+import { useRouter } from 'next/router';
+import { i18n, I18NKey } from '~/utils/i18n';
+import { formatLocale } from '~/utils/date';
 
 const JoyRideNoSSR = dynamic(() => import('react-joyride'), { ssr: false });
 
@@ -24,21 +28,26 @@ const StationViewModal = dynamic(
 
 const spotTextFormat = 'HH:mm';
 
-const stationStatusMapper: {
+const stationStatusMapper = (
+  locale: typeof i18n[I18NKey],
+): {
   [key in StationStatus]: { text: string; color: string };
-} = {
-  ACTIVE: {
-    text: 'available',
-    color: 'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100',
-  },
-  INACTIVE: {
-    text: 'unavailable',
-    color: 'text-red-700 bg-red-100 dark:text-red-100 dark:bg-red-700',
-  },
-  USED: {
-    text: 'used',
-    color: 'text-yellow-700 bg-yellow-100',
-  },
+} => {
+  return {
+    ACTIVE: {
+      text: locale.stationsStatuses.available,
+      color:
+        'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100',
+    },
+    INACTIVE: {
+      text: locale.stationsStatuses.unavailable,
+      color: 'text-red-700 bg-red-100 dark:text-red-100 dark:bg-red-700',
+    },
+    USED: {
+      text: locale.stationsStatuses.used,
+      color: 'text-yellow-700 bg-yellow-100',
+    },
+  };
 };
 
 const refreshParams = {
@@ -56,11 +65,15 @@ const steps = [
 ];
 
 const IndexPage: NextPageWithLayout = () => {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const utils = trpc.useContext();
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [tourRun, setTourRun] = useState(false);
+
+  const localeKey = (router.locale as I18NKey) || 'en';
+  const locale = i18n[localeKey];
 
   useEffect(() => {
     setMounted(true);
@@ -111,11 +124,11 @@ const IndexPage: NextPageWithLayout = () => {
   });
 
   const showBookModal = (station: StationsResponse[0]) => {
-    NiceModal.show(StationBookModal, { station });
+    NiceModal.show(StationBookModal, { station, localeKey });
   };
 
   const showViewModal = (id: string) => {
-    NiceModal.show(StationViewModal as FC<any>, { orderId: id });
+    NiceModal.show(StationViewModal as FC<any>, { orderId: id, localeKey });
   };
 
   const onDeclineOrder = (orderId: string) => {
@@ -159,12 +172,15 @@ const IndexPage: NextPageWithLayout = () => {
                 onChange={(e) => setSearch(e.target.value)}
                 name=""
                 id=""
-                placeholder="Search"
+                placeholder={locale.search}
                 className="w-full pl-3 text-sm text-black outline-none focus:outline-none bg-transparent"
               />
             </div>
             <ul className="flex items-center">
               <li>
+                <LocaleChanger localeKey={localeKey} />
+              </li>
+              <li className="mx-3">
                 <ThemeChanger />
               </li>
               <li>
@@ -172,7 +188,9 @@ const IndexPage: NextPageWithLayout = () => {
                   aria-hidden="true"
                   onClick={() =>
                     window.open(
-                      'https://filebrowser.hidemire.dev/api/public/dl/6A4b3CTk?inline=true',
+                      localeKey === 'en'
+                        ? 'https://filebrowser.hidemire.dev/api/public/dl/6A4b3CTk?inline=true'
+                        : 'https://filebrowser.hidemire.dev/api/public/dl/MSw0i-Jx?inline=true',
                       '_blank',
                     )
                   }
@@ -215,7 +233,7 @@ const IndexPage: NextPageWithLayout = () => {
                       ></path>
                     </svg>
                   </span>
-                  Logout
+                  {locale.logOut}
                 </a>
               </li>
             </ul>
@@ -229,7 +247,7 @@ const IndexPage: NextPageWithLayout = () => {
               <li className="px-5 hidden md:block">
                 <div className="flex flex-row items-center h-8">
                   <div className="text-sm font-light tracking-wide text-gray-400 uppercase">
-                    Main
+                    {locale.main}
                   </div>
                 </div>
               </li>
@@ -255,43 +273,10 @@ const IndexPage: NextPageWithLayout = () => {
                     </svg>
                   </span>
                   <span className="ml-2 text-sm tracking-wide truncate">
-                    Dashboard
+                    {locale.dashboard}
                   </span>
                 </a>
               </li>
-              {/* <li className="px-5 hidden md:block">
-                <div className="flex flex-row items-center mt-5 h-8">
-                  <div className="text-sm font-light tracking-wide text-gray-400 uppercase">
-                    Settings
-                  </div>
-                </div>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="relative flex flex-row items-center h-11 focus:outline-none hover:bg-blue-800 dark:hover:bg-gray-600 text-white-600 hover:text-white-800 border-l-4 border-transparent hover:border-blue-500 dark:hover:border-gray-800 pr-6"
-                >
-                  <span className="inline-flex justify-center items-center ml-4">
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      ></path>
-                    </svg>
-                  </span>
-                  <span className="ml-2 text-sm tracking-wide truncate">
-                    Profile
-                  </span>
-                </a>
-              </li> */}
             </ul>
             <p className="mb-14 px-5 py-3 hidden md:block text-center text-xs">
               Copyright @2022
@@ -306,7 +291,7 @@ const IndexPage: NextPageWithLayout = () => {
                 <div className="flex flex-wrap items-center px-4 py-2">
                   <div className="relative w-full max-w-full flex-grow flex-1">
                     <h3 className="font-semibold text-base text-gray-900 dark:text-gray-50">
-                      Booked Stations
+                      {locale.bookedStations}
                     </h3>
                   </div>
                 </div>
@@ -315,10 +300,10 @@ const IndexPage: NextPageWithLayout = () => {
                     <thead>
                       <tr>
                         <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                          Station
+                          {locale.station}
                         </th>
                         <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                          Date
+                          {locale.date}
                         </th>
                         <th className="w-0 px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"></th>
                       </tr>
@@ -349,7 +334,11 @@ const IndexPage: NextPageWithLayout = () => {
                               spotTextFormat,
                             )}
                             {', '}
-                            {format(order.bookingStartAt, 'EEEE, LLL dd, Y')}
+                            {formatLocale(
+                              order.bookingStartAt,
+                              'EEEE, LLL dd, Y',
+                              localeKey,
+                            )}
                           </td>
                           {isAfter(order.bookingStartAt, new Date()) && (
                             <td>
@@ -357,7 +346,7 @@ const IndexPage: NextPageWithLayout = () => {
                                 onClick={() => onDeclineOrder(order.id)}
                                 className="text-xs dark:text-red-300 text-red-500"
                               >
-                                Cancel
+                                {locale.cancel}
                               </button>
                             </td>
                           )}
@@ -373,7 +362,7 @@ const IndexPage: NextPageWithLayout = () => {
                 <div className="flex flex-wrap items-center px-4 py-2">
                   <div className="relative w-full max-w-full flex-grow flex-1">
                     <h3 className="font-semibold text-base text-gray-900 dark:text-gray-50">
-                      Last Activity
+                      {locale.lastActivity}
                     </h3>
                   </div>
                 </div>
@@ -386,7 +375,7 @@ const IndexPage: NextPageWithLayout = () => {
                       .map((day) => (
                         <div key={day}>
                           <div className="px-4 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-100 align-middle border border-solid border-gray-200 dark:border-gray-500 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            {format(day, 'EEEE, LLL dd, Y')}
+                            {formatLocale(day, 'EEEE, LLL dd, Y', localeKey)}
                           </div>
                           <ul className="my-1">
                             {activities?.[day]?.map((activity) => (
@@ -394,7 +383,10 @@ const IndexPage: NextPageWithLayout = () => {
                                 key={activity.id}
                                 className="flex px-4  border-b last:border-b-0 border-gray-100 dark:border-gray-400"
                               >
-                                <Activity activity={activity} />
+                                <Activity
+                                  activity={activity}
+                                  localeKey={localeKey}
+                                />
                               </li>
                             ))}
                           </ul>
@@ -411,9 +403,9 @@ const IndexPage: NextPageWithLayout = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                      <th className="px-4 py-3">Station</th>
-                      <th className="px-4 py-3">Queue</th>
-                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">{locale.station}</th>
+                      <th className="px-4 py-3">{locale.queue}</th>
+                      <th className="px-4 py-3">{locale.status}</th>
                       <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
@@ -449,11 +441,13 @@ const IndexPage: NextPageWithLayout = () => {
                         <td className="px-4 py-3 text-xs">
                           <span
                             className={`px-2 py-1 font-semibold leading-tight text-green-700 rounded-full ${
-                              stationStatusMapper[station.status].color
+                              stationStatusMapper(locale)[station.status].color
                             }`}
                           >
                             {' '}
-                            {stationStatusMapper[station.status].text}{' '}
+                            {
+                              stationStatusMapper(locale)[station.status].text
+                            }{' '}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm">
@@ -462,7 +456,7 @@ const IndexPage: NextPageWithLayout = () => {
                             disabled={station.status === 'INACTIVE'}
                             className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 dark:disabled:bg-gray-400 disabled:bg-gray-300 border border-r-0 border-blue-600 disabled:border-gray-300 dark:disabled:border-gray-400 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple"
                           >
-                            Book
+                            {locale.book}
                           </button>
                         </td>
                       </tr>
@@ -473,7 +467,7 @@ const IndexPage: NextPageWithLayout = () => {
               <div className="grid px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t dark:border-gray-700 bg-gray-50 sm:grid-cols-9 dark:text-gray-400 dark:bg-gray-800">
                 <span className="flex items-center col-span-3">
                   {' '}
-                  Stations 1-{stations?.length || 'N/A'} of{' '}
+                  {locale.stations} 1-{stations?.length || 'N/A'} {locale.of}{' '}
                   {stations?.length || 'N/A'}{' '}
                 </span>
                 <span className="col-span-2"></span>
@@ -504,34 +498,6 @@ const IndexPage: NextPageWithLayout = () => {
                           1
                         </button>
                       </li>
-                      {/* <li>
-                        <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          2
-                        </button>
-                      </li>
-                      <li>
-                        <button className="px-3 py-1 text-white dark:text-gray-800 transition-colors duration-150 bg-blue-600 dark:bg-gray-100 border border-r-0 border-blue-600 dark:border-gray-100 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          3
-                        </button>
-                      </li>
-                      <li>
-                        <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          4
-                        </button>
-                      </li>
-                      <li>
-                        <span className="px-3 py-1">...</span>
-                      </li>
-                      <li>
-                        <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          8
-                        </button>
-                      </li>
-                      <li>
-                        <button className="px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple">
-                          9
-                        </button>
-                      </li> */}
                       <li>
                         <button
                           className="px-3 py-1 rounded-md rounded-r-lg focus:outline-none focus:shadow-outline-purple"

@@ -41,4 +41,9 @@ module.exports = getConfig({
     ION_SFU_URL: env.ION_SFU_URL,
     SESSION_DURATION_MIN: env.SESSION_DURATION_MIN,
   },
+
+  i18n: {
+    locales: ['en', 'uk'],
+    defaultLocale: 'en',
+  },
 });
