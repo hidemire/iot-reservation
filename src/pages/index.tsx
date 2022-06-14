@@ -56,6 +56,7 @@ const steps = [
 ];
 
 const IndexPage: NextPageWithLayout = () => {
+  const [search, setSearch] = useState('');
   const utils = trpc.useContext();
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
@@ -80,7 +81,7 @@ const IndexPage: NextPageWithLayout = () => {
     }
   }, [mounted]);
 
-  const { data: stations } = trpc.useQuery(['station.all'], {
+  const { data: stations } = trpc.useQuery(['station.all', { search }], {
     ...refreshParams,
   });
 
@@ -154,6 +155,8 @@ const IndexPage: NextPageWithLayout = () => {
               </button>
               <input
                 type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 name=""
                 id=""
                 placeholder="Search"

@@ -13,13 +13,23 @@ import { TimeSpot } from '~/types';
 
 export const stationRouter = createProtectedRouter()
   .query('all', {
-    async resolve({ ctx }) {
+    input: z.object({
+      search: z.string().optional(),
+    }),
+    async resolve({ ctx, input }) {
       const prisma = ctx.scope.resolve('db').client;
+      const { search } = input;
       const today = new Date();
       const endDay = endOfDay(today);
 
       const stations = await prisma.station.findMany({
         orderBy: { name: 'asc' },
+        where: {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        },
         include: {
           orders: {
             where: {
