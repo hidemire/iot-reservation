@@ -1,4 +1,6 @@
-import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useMachine } from '@xstate/react';
+
 import { differenceInSeconds } from 'date-fns';
 import NiceModal, { useModal } from '@ebay/nice-modal-react';
 
@@ -8,70 +10,76 @@ import { IonSFUJSONRPCSignal } from 'ion-sdk-js/lib/signal/json-rpc-impl';
 import { trpc } from '~/utils/trpc';
 import { publicRuntimeConfig } from '~/utils/publicRuntimeConfig';
 import { i18n, I18NKey } from '~/utils/i18n';
+import { ionSfuMachine } from '~/machines/ionSfuMachine';
 
 const ONE_MINUTE = 60;
 
 export const StationViewModal = NiceModal.create(
   ({ orderId, localeKey }: { orderId: string; localeKey: I18NKey }) => {
+    const [current, send] = useMachine(ionSfuMachine, {
+      context: {
+        signal: null,
+        client: null,
+        isVideoAvailable: false,
+      },
+      services: {
+        createSignal: async (context: any) => {
+          const signal = new IonSFUJSONRPCSignal(
+            publicRuntimeConfig.ION_SFU_URL,
+          );
+          await Promise.race([
+            new Promise((res) => {
+              signal.onopen = () => res(true);
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('signal timeout')), 5000),
+            ),
+          ]);
+          context.signal = signal;
+        },
+        createClient: async (context: any) => {
+          const client = new Client(context.signal, {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+            codec: 'vp8',
+          });
+          context.client = client;
+        },
+        joinRoom: async (context: any, event) => {
+          const { videoElement, userId, stationId } = event.data;
+          context.client.join(stationId, userId);
+          (context.client as Client).ontrack = (track, stream) => {
+            console.log('got track', track.id, 'for stream', stream.id);
+            track.onunmute = () => {
+              videoElement.srcObject = stream;
+              videoElement.autoplay = true;
+              context.isVideoAvailable = true;
+            };
+            stream.onremovetrack = () => {
+              videoElement.srcObject = null;
+              context.isVideoAvailable = false;
+            };
+          };
+        },
+        leaveRoom: (context: any, event) => async (send) => {
+          if (event.type === 'DISCONNECT') {
+            context.client.leave();
+            send({ type: 'DISCONNECT' });
+          } else if (event.type === 'LEAVE_ROOM') {
+            context.client.leave();
+          }
+        },
+        disconnectSignal: async (context: any) => {
+          context.signal.close();
+        },
+      },
+    });
+
     const modal = useModal();
     const utils = trpc.useContext();
-    const [isVideoAvailable, setIsVideoAvailable] = useState(false);
-    const [isSignalReady, setIsSignalReady] = useState(false);
     const [timerText, setTimerText] = useState('-');
     const videoElement = useRef<HTMLVideoElement>(null);
 
     const { data: orderInfo } = trpc.useQuery(['order.info', { orderId }]);
-
-    const signalLocal = useMemo(
-      () => new IonSFUJSONRPCSignal(publicRuntimeConfig.ION_SFU_URL),
-      [],
-    );
-
-    useEffect(() => {
-      signalLocal.onopen = () => {
-        setIsSignalReady(true);
-      };
-    }, []);
-
-    const clientLocal = useMemo(
-      () =>
-        new Client(signalLocal, {
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-          codec: 'vp8',
-        }),
-      [signalLocal],
-    );
-
-    useEffect(() => {
-      if (videoElement.current) {
-        clientLocal.ontrack = (track, stream) => {
-          console.log('got track', track.id, 'for stream', stream.id);
-          track.onunmute = () => {
-            videoElement.current!.srcObject = stream;
-            videoElement.current!.autoplay = true;
-            setIsVideoAvailable(true);
-          };
-          stream.onremovetrack = () => {
-            videoElement.current!.srcObject = null;
-            setIsVideoAvailable(false);
-          };
-        };
-      }
-    }, [videoElement.current]);
-
-    useEffect(() => {
-      console.log(videoElement.current, isSignalReady);
-      if (videoElement.current && isSignalReady && orderInfo) {
-        clientLocal.join(orderInfo.station.id, Math.random().toString());
-      }
-      return () => {
-        console.log('leave', isSignalReady);
-        if (isSignalReady) {
-          clientLocal.leave();
-          signalLocal.close();
-        }
-      };
-    }, [videoElement, clientLocal, signalLocal, isSignalReady, orderInfo]);
 
     const updateTimerText = useCallback(() => {
       if (!orderInfo) return;
@@ -87,7 +95,7 @@ export const StationViewModal = NiceModal.create(
       const seconds = diffInSeconds - minutes * ONE_MINUTE;
 
       setTimerText(`${minutes}:${('0' + seconds).slice(-2)}`);
-    }, [orderInfo, modal]);
+    }, [orderInfo, modal, utils]);
 
     useEffect(() => {
       updateTimerText();
@@ -98,18 +106,38 @@ export const StationViewModal = NiceModal.create(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateTimerText]);
 
+    useEffect(() => {
+      if (current.matches('CLIENT_CREATED.ROOM_LEAVED') && orderInfo) {
+        send({
+          type: 'JOIN_ROOM',
+          data: {
+            stationId: orderInfo.station.id,
+            videoElement: videoElement.current,
+            userId: Math.random().toString(),
+          },
+        });
+      }
+      if (current.matches('SIGNAL_DISCONNECTED')) {
+        modal.remove();
+      }
+    }, [current, send, orderInfo, modal]);
+
+    const closeModal = () => {
+      send({ type: 'DISCONNECT' });
+    };
+
     return (
       <div className="absolute top-0 left-0 z-30 w-full">
         <div className="flex justify-center h-screen items-center backdrop-blur-sm backdrop-opacity-90 antialiased">
           <div
-            onClick={() => modal.remove()}
+            onClick={() => closeModal()}
             className="z-0 w-full h-full absolute top-0"
           ></div>
           <div className="z-30 w-4/5 max-w-7xl h-[90vh] flex flex-col lg:flex-row border rounded-xl bg-white dark:bg-gray-700 dark:border-gray-500">
             <div className="flex flex-col justify-start items-center p-6 lg:basis-2/5 border-b lg:border-r border-gray-200 dark:border-gray-500 lg:items-start">
               <div className="relative w-full">
                 <button
-                  onClick={() => modal.remove()}
+                  onClick={() => closeModal()}
                   className="mb-3 absolute lg:static dark:text-gray-50"
                 >
                   <svg
@@ -194,7 +222,7 @@ export const StationViewModal = NiceModal.create(
                 {orderInfo?.station.description}
               </p>
             </div>
-            {!isVideoAvailable && (
+            {!(current.context as any).isVideoAvailable && (
               <div className="p-6 w-full flex flex-auto flex-col sm:flex-row overflow-auto justify-center items-center">
                 <div>
                   <svg
@@ -217,7 +245,11 @@ export const StationViewModal = NiceModal.create(
                 </div>
               </div>
             )}
-            <div className={`${!isVideoAvailable && 'hidden'}`}>
+            <div
+              className={`${
+                !(current.context as any).isVideoAvailable && 'hidden'
+              }`}
+            >
               <video ref={videoElement} className="bg-black h-full"></video>
             </div>
           </div>
