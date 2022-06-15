@@ -18,6 +18,8 @@ const env = envalid.cleanEnv(process.env, {
   NEXTAUTH_URL: envalid.url(),
   TRAEFIK_ENTRY_POINTS: envalid.json(),
   SESSION_DURATION_MIN: envalid.num(),
+  PING_DEADLINE_SEC: envalid.num(),
+  REPEATABLE_CRON: envalid.str(),
 });
 
 const envSchema = z.object({

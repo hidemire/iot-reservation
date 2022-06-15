@@ -25,6 +25,8 @@ export class StationService {
   activityService;
   traefikPublicHost;
   traefikEntryPoints;
+  pingDeadlineSec;
+  repeatableCron;
 
   constructor({ db, bullMQ, redis, activityService, config }: DIContainer) {
     this.db = db;
@@ -33,11 +35,13 @@ export class StationService {
     this.activityService = activityService;
     this.traefikPublicHost = config.TRAEFIK_PUBLIC_HOST;
     this.traefikEntryPoints = config.TRAEFIK_ENTRY_POINTS;
+    this.pingDeadlineSec = config.PING_DEADLINE_SEC;
+    this.repeatableCron = config.REPEATABLE_CRON;
   }
 
   async startStationsStatusCheck() {
     await this.bullMQ.repeatableQueue.add('station-status-check', null, {
-      repeat: { cron: '*/10 * * * * *' },
+      repeat: { cron: this.repeatableCron },
     });
 
     this.bullMQ.on('repeatable', async (job) => {
@@ -69,7 +73,7 @@ export class StationService {
         const { alive: stationIsReachable } = await ping.promise.probe(
           station.ip,
           {
-            deadline: 5,
+            deadline: this.pingDeadlineSec,
           },
         );
 
